@@ -16,6 +16,7 @@ dependencies = [
     "dagster-cloud",
     "dagster-mlflow>=0.26.5",
     "dagster-webserver>=1.10.5",
+    "imbalanced-learn>=0.12.4",
     "mlflow>=2.21.0",
     "pandas>=2.2.3",
     "ucimlrepo>=0.0.7",

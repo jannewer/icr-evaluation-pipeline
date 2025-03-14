@@ -1,7 +1,9 @@
-from typing import Type, Any
+from typing import Type, Any, Dict
 
 import pandas as pd
 from dagster import DagsterType
+
+_type_cache: Dict[str, DagsterType] = {}
 
 
 def is_dataframe_tuple(_, value: object) -> bool:  # noqa: ANN001
@@ -21,6 +23,12 @@ DataFrameTuple = DagsterType(
 
 
 def Triple(type1: Type, type2: Type, type3: Type) -> DagsterType:
+    type_name = f"Triple[{type1.__name__}, {type2.__name__}, {type3.__name__}]"
+
+    # Check cache first to avoid creating duplicate types
+    if type_name in _type_cache:
+        return _type_cache[type_name]
+
     def type_check(_, value: Any) -> bool:  # noqa: ANN001, ANN401
         return (
             isinstance(value, tuple)
@@ -30,9 +38,11 @@ def Triple(type1: Type, type2: Type, type3: Type) -> DagsterType:
             and isinstance(value[2], type3)
         )
 
-    name = f"Triple[{type1.__name__}, {type2.__name__}, {type3.__name__}]"
-    description = (
-        f"Tuple containing ({type1.__name__}, {type2.__name__}, {type3.__name__})."
+    dagster_type = DagsterType(
+        type_check_fn=type_check,
+        name=type_name,
+        description=f"Tuple containing ({type1.__name__}, {type2.__name__}, {type3.__name__}).",
     )
 
-    return DagsterType(type_check_fn=type_check, name=name, description=description)
+    _type_cache[type_name] = dagster_type
+    return dagster_type
