@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "icr-evaluation-pipeline"
+version = "0.1.0"
+description = "A pipeline for evaluating ICR models."
+readme = "README.md"
+authors = [
+    { name = "Janne Wernecken", email = "dev@wernecken.com" }
+]
+requires-python = ">=3.9,<3.13"
+dependencies = [
+    "dagster",
+    "dagster-cloud",
+    "dagster-mlflow>=0.26.5",
+    "dagster-webserver>=1.10.5",
+    "mlflow>=2.21.0",
+    "pandas>=2.2.3",
+    "ucimlrepo>=0.0.7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "dagster-webserver",
+    "pytest",
+]
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.1.0",
+    "ruff>=0.10.0",
+    "taskipy>=1.14.1",
+]
+
+[tool.dagster]
+module_name = "icr_evaluation_pipeline.definitions"
+code_location_name = "icr_evaluation_pipeline"
+
+[tool.setuptools.packages.find]
+exclude=["icr_evaluation_pipeline_tests"]
+
+[tool.taskipy.tasks]
+dagster = "uv run dagster dev"
+mlflow = "uv run mlflow ui"
+lint = "ruff check"
+format = "ruff format"
+
+[tool.ruff.lint]
+# Enable flake8 annotation rules, in addition to the defaults.
+select = ["ANN"]
