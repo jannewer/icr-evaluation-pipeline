@@ -15,11 +15,13 @@ Make sure you have the following installed:
 - [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
 Start the Dagster UI web server:
+
 ```bash
 uv run task dagster
 ```
 
 Start the MLflow UI web server:
+
 ```bash
 uv run task mlflow
 ```
@@ -33,8 +35,20 @@ the `DAGSTER_HOME` variable to a directory where you want to store the runs.
 
 ### Unit testing
 
-Tests are in the `icr_evaluation_pipeline_tests` directory and you can run tests using `pytest`:
+Tests are located in the `icr_evaluation_pipeline_tests` directory and you can run tests using `pytest`:
 
 ```bash
 pytest icr_evaluation_pipeline_tests
 ```
+
+### Adding datasets
+
+Datasets from the UCI Machine Learning Repository can be added by adding their name to the partitions definition in
+`partitions.py`.
+
+### Custom MLflow tracking
+
+In order to map one run of the Dagster pipeline (for **all** specified datasets) to one MLflow experiment, the default
+MLflow resource is replaced with a custom one. This custom resource is defined in `custom_mlflow_resource.py`.
+This way, the experiment name in MLflow is set to the run id of the Dagster pipeline run (the `id` column in the [
+`runs` table](http://localhost:3000/runs)).
