@@ -1,6 +1,7 @@
 from dagster import Definitions, load_assets_from_package_module
 
 from icr_evaluation_pipeline.assets import datasets, models, results
+from icr_evaluation_pipeline.jobs import partitioned_evaluation_job
 from icr_evaluation_pipeline.resources.custom_mlflow import CustomMlflow
 
 dataset_assets = load_assets_from_package_module(datasets, group_name="Datasets")
@@ -19,5 +20,6 @@ all_resources = {
 
 defs = Definitions(
     assets=all_assets,
+    jobs=[partitioned_evaluation_job],
     resources=all_resources,
 )
