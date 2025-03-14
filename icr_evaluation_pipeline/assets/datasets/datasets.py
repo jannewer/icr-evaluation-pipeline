@@ -1,4 +1,5 @@
 import mlflow
+import numpy as np
 import pandas as pd
 from dagster import (
     asset,
@@ -13,7 +14,7 @@ from ucimlrepo import fetch_ucirepo
 
 from icr_evaluation_pipeline.partitions import dataset_partitions
 from icr_evaluation_pipeline.resources.configs import TrainAndTestDatasetConfig
-from icr_evaluation_pipeline.types import DataFrameTuple
+from icr_evaluation_pipeline.types import DataFrameTuple, Triple
 
 
 @asset(
@@ -24,19 +25,16 @@ from icr_evaluation_pipeline.types import DataFrameTuple
 def raw_dataset(
     context: OpExecutionContext,
 ) -> Output[DataFrameTuple]:
-    # TODO: Is this still necessary?
-    mlflow.set_tag("backfill", context.run.tags.get("dagster/backfill"))
-
     dataset_name = context.partition_key
-    print(f"Evaluating model on {dataset_name}")
+    context.log.info(f"Evaluating model on {dataset_name}")
 
-    # fetch dataset
+    # Fetch dataset
     dataset = fetch_ucirepo(name=dataset_name)
     X = dataset.data.features
     y = dataset.data.targets
     dataset_df = pd.concat([X, y], axis=1)
 
-    # log dataset as input to MLflow
+    # Log dataset as input to MLflow
     mlflow_dataset: PandasDataset = mlflow.data.from_pandas(
         dataset_df, name=dataset.metadata.name
     )
@@ -63,7 +61,7 @@ def train_and_test_sets(
         X, y, random_state=config.seed, train_size=config.train_size
     )
 
-    # log train/test split parameters to MLflow
+    # Log train/test split parameters to MLflow
     mlflow.log_param("train_size", len(X_train))
     mlflow.log_param("test_size", len(X_test))
 
@@ -71,3 +69,28 @@ def train_and_test_sets(
         Output((X_train, y_train)),
         Output((X_test, y_test)),
     )
+
+
+@asset(
+    description="Test dataset with rarity scores",
+    deps=["test_data"],
+    partitions_def=dataset_partitions,
+    required_resource_keys={"mlflow"},
+)
+def test_data_with_rarity_scores(
+    test_data: DataFrameTuple,
+) -> Output[Triple(pd.DataFrame, pd.DataFrame, pd.Series)]:
+    (X_test, y_test) = test_data
+
+    # TODO: Use proper rarity metric(s) here
+    # For now, we'll use random scores as a placeholder
+    rarity_scores = np.random.rand(len(X_test))
+    rarity_scores = pd.Series(rarity_scores, index=X_test.index)
+
+    # TODO: Think about useful metadata to include here
+    # e.g. the rarest x samples, all samples over a certain rarity threshold, top x percent of rarest samples, etc.
+    top_10_rarest = rarity_scores.nlargest(10).index.tolist()
+
+    mlflow.log_param("top_10_rarest_samples", top_10_rarest)
+
+    return Output((X_test, y_test, rarity_scores))

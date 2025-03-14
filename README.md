@@ -1,8 +1,8 @@
-# icr_evaluation_pipeline
+# Intra-Class Rarity Model Evaluation Pipeline
 
 This is a pipeline to evaluate intra-class rarity models systematically. It uses the [Dagster](https://dagster.io/)
 framework.
-[Mlflow Tracking](https://mlflow.org/docs/latest/tracking/) is used to log parameters, metrics and artifacts of the
+[MLflow Tracking](https://mlflow.org/docs/latest/tracking/) is used to log parameters, metrics and artifacts of the
 evaluation.
 
 ## Getting started
@@ -19,12 +19,12 @@ Start the Dagster UI web server:
 uv run task dagster
 ```
 
-Start the Mlflow UI web server:
+Start the MLflow UI web server:
 ```bash
 uv run task mlflow
 ```
 
-Open http://localhost:3000 with your browser to see the Dagster UI and http://localhost:5000 to see the Mlflow UI.
+Open http://localhost:3000 with your browser to see the Dagster UI and http://localhost:5000 to see the MLflow UI.
 
 If you want to store Dagster runs across restarts, you can create a `.env` file based on the `.env.example` file and set
 the `DAGSTER_HOME` variable to a directory where you want to store the runs.
