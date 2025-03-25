@@ -52,3 +52,7 @@ In order to map one run of the Dagster pipeline (for **all** specified datasets)
 MLflow resource is replaced with a custom one. This custom resource is defined in `custom_mlflow_resource.py`.
 This way, the experiment name in MLflow is set to the run id of the Dagster pipeline run (the `id` column in the [
 `runs` table](http://localhost:3000/runs)).
+
+## Known issues
+
+- The `combine_results` job will fail if not all partitions have been materialized at least one time

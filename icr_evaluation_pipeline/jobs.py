@@ -14,6 +14,7 @@ from icr_evaluation_pipeline.assets.results.individual_results import (
     random_forest_results,
     icr_random_forest_results,
 )
+from icr_evaluation_pipeline.assets.results.combined_results import combined_results
 from icr_evaluation_pipeline.partitions import dataset_partitions
 
 partitioned_evaluation_job = define_asset_job(
@@ -28,5 +29,11 @@ partitioned_evaluation_job = define_asset_job(
         random_forest_results,
         icr_random_forest_results,
     ),
+    hooks={end_mlflow_on_run_finished},
+)
+
+combine_results_job = define_asset_job(
+    name="combine_results",
+    selection=AssetSelection.assets(combined_results),
     hooks={end_mlflow_on_run_finished},
 )
