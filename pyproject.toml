@@ -16,6 +16,7 @@ dependencies = [
     "dagster-cloud",
     "dagster-mlflow>=0.26.5",
     "dagster-webserver>=1.10.5",
+    "icrlearn>=0.0.1",
     "imbalanced-learn>=0.12.4",
     "mlflow>=2.21.0",
     "pandas>=2.2.3",
@@ -51,3 +52,6 @@ format = "ruff format"
 [tool.ruff.lint]
 # Enable flake8 annotation rules, in addition to the defaults.
 select = ["ANN"]
+
+[tool.uv.sources]
+icrlearn = { git = "https://github.com/jannewer/intra-class-rare-learn.git" }

@@ -1,5 +1,6 @@
 import pandas as pd
 from dagster import asset, Output
+from icrlearn import ICRRandomForestClassifier
 from sklearn.ensemble import RandomForestClassifier
 
 from icr_evaluation_pipeline.evaluation import log_and_persist_metrics
@@ -21,6 +22,25 @@ def random_forest_results(
     model_name = "Standard_RF"
 
     y_pred = random_forest_model.predict(X_test)
+    metrics = log_and_persist_metrics(y_test, y_pred, rarity_scores, X_test, model_name)
+
+    return Output((metrics, model_name))
+
+
+@asset(
+    description="ICR RF Results",
+    deps=["test_data_with_rarity_scores", "icr_random_forest_model"],
+    partitions_def=dataset_partitions,
+    required_resource_keys={"mlflow"},
+)
+def icr_random_forest_results(
+    test_data_with_rarity_scores: Triple(pd.DataFrame, pd.DataFrame, pd.Series),
+    icr_random_forest_model: ICRRandomForestClassifier,
+) -> Output[tuple[pd.DataFrame, str]]:
+    (X_test, y_test, rarity_scores) = test_data_with_rarity_scores
+    model_name = "ICR_RF"
+
+    y_pred = icr_random_forest_model.predict(X_test)
     metrics = log_and_persist_metrics(y_test, y_pred, rarity_scores, X_test, model_name)
 
     return Output((metrics, model_name))

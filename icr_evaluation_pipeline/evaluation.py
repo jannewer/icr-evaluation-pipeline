@@ -17,7 +17,7 @@ def create_and_log_classification_report(
             continue
         else:
             # Log all average metrics from the classification report
-            key = f"{key}_{suffix}" if suffix else key
+            key = f"{key}_{model_name}_{suffix}" if suffix else f"{key}_{model_name}"
             mlflow.log_metric(key, value)
 
     # Log the full metrics dictionary to mlflow (as a json artifact)
