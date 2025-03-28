@@ -15,3 +15,10 @@ repos:
       # Run the formatter.
       - id: ruff-format
         types_or: [ python, pyi ]
+  - repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.6.9
+    hooks:
+      # Update the lock file.
+      - id: uv-lock
+      # Update the requirements file.
+      - id: uv-export
