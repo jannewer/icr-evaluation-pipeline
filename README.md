@@ -41,6 +41,16 @@ Tests are located in the `icr_evaluation_pipeline_tests` directory and you can r
 pytest icr_evaluation_pipeline_tests
 ```
 
+### Linting and formatting
+
+Linting and formatting is run automatically on commit using [pre-commit](https://pre-commit.com/).
+You can also run it manually using:
+
+```bash
+uv run task lint
+uv run task format
+```
+
 ### Adding datasets
 
 Datasets from the UCI Machine Learning Repository can be added by adding their name to the partitions definition in
