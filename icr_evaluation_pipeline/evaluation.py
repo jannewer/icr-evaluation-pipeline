@@ -2,6 +2,20 @@ import mlflow
 import numpy as np
 import pandas as pd
 from imblearn.metrics import classification_report_imbalanced
+from matplotlib import pyplot as plt
+from sklearn.metrics import ConfusionMatrixDisplay
+
+
+def log_confusion_matrix(
+    y_test: pd.DataFrame, y_pred: np.ndarray, model_name: str = ""
+) -> None:
+    fig, ax = plt.subplots(1, 1, figsize=(6.0, 4.0))
+
+    ConfusionMatrixDisplay.from_predictions(
+        y_true=y_test, y_pred=y_pred, normalize="true", ax=ax, cmap="Blues"
+    )
+
+    mlflow.log_figure(fig, f"{model_name}_normalized_confusion_matrix.png")
 
 
 def create_and_log_classification_report(
@@ -40,6 +54,8 @@ def log_and_persist_metrics(
 ) -> pd.DataFrame:
     # Combine y_pred with the index of X_test to map the predictions back to the original index
     y_pred_with_index = pd.Series(y_pred, index=X_test.index)
+
+    log_confusion_matrix(y_test, y_pred, model_name=model_name)
 
     classification_report = create_and_log_classification_report(
         y_pred, y_test, model_name=model_name
