@@ -1,6 +1,8 @@
 from dagster import Config
 
 
-class TrainAndTestDatasetConfig(Config):
+class KFoldConfig(Config):
     seed: int = 1
-    train_size: float = 0.8
+    n_splits: int = 5
+    stratify: bool = True
+    n_bins: int = 10

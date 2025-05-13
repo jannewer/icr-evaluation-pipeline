@@ -1,4 +1,4 @@
-from typing import Type, Any, Dict
+from typing import Type, Any, Dict, Iterator
 
 import pandas as pd
 from dagster import DagsterType
@@ -46,3 +46,14 @@ def Triple(type1: Type, type2: Type, type3: Type) -> DagsterType:
 
     _type_cache[type_name] = dagster_type
     return dagster_type
+
+
+def is_iterator(_, value: object) -> bool:  # noqa: ANN001
+    return isinstance(value, Iterator)
+
+
+IteratorType = DagsterType(
+    type_check_fn=is_iterator,
+    name="IteratorType",
+    description="An iterator.",
+)

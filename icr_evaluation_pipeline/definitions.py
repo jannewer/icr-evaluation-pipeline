@@ -8,7 +8,7 @@ from icr_evaluation_pipeline.sensors.evaluation_finished import (
 )
 
 dataset_assets = load_assets_from_package_module(datasets, group_name="Datasets")
-model_assets = load_assets_from_package_module(models, group_name="Trained_Models")
+model_assets = load_assets_from_package_module(models, group_name="Model_Results")
 result_assets = load_assets_from_package_module(results, group_name="Test_Results")
 
 all_assets = [

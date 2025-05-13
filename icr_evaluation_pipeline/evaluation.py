@@ -1,84 +1,65 @@
 import mlflow
 import numpy as np
+import numpy.typing as npt
 import pandas as pd
-from imblearn.metrics import classification_report_imbalanced
-from matplotlib import pyplot as plt
-from sklearn.metrics import ConfusionMatrixDisplay
+from sklearn.metrics import f1_score
 
 
-def log_confusion_matrix(
-    y_test: pd.DataFrame, y_pred: np.ndarray, model_name: str = ""
-) -> None:
-    fig, ax = plt.subplots(1, 1, figsize=(6.0, 4.0))
+def f1_most_rare_score(
+    y_true: pd.Series,
+    y_pred: npt.ArrayLike,
+    rarity_scores: pd.Series,
+    average: str = "macro",
+    sample_weight: np.ndarray = None,
+) -> float:
+    # Get the rarity scores for all samples in the test set of the current fold
+    rarity_scores_for_y_true = rarity_scores.loc[y_true.index]
+    # Get the indices of the 10 rarest samples of the test set
+    ten_rarest_indices = rarity_scores_for_y_true.nlargest(10).index
 
-    ConfusionMatrixDisplay.from_predictions(
-        y_true=y_test, y_pred=y_pred, normalize="true", ax=ax, cmap="Blues"
+    # Create a series from y_pred with the same index as y_true to be able to locate the rarest samples by index
+    y_pred_series = pd.Series(y_pred, index=y_true.index)
+
+    # Create numpy arrays that contain the actual and predicted values for the rarest samples
+    y_true_most_rare = y_true.loc[ten_rarest_indices].to_numpy()
+    y_pred_most_rare = y_pred_series.loc[ten_rarest_indices].to_numpy()
+
+    # Calculate f1 score for the rarest samples
+    return f1_score(
+        y_true_most_rare,
+        y_pred_most_rare,
+        average=average,
+        sample_weight=sample_weight,
     )
-
-    mlflow.log_figure(fig, f"{model_name}_normalized_confusion_matrix.png")
-
-
-def create_and_log_classification_report(
-    y_pred: np.ndarray, y_test: pd.DataFrame, suffix: str = "", model_name: str = ""
-) -> dict:
-    # classification_report_imbalanced returns a dictionary with state-of-the-art metrics for imbalanced classification
-    # see https://imbalanced-learn.org/stable/references/generated/imblearn.metrics.classification_report_imbalanced.html for details
-    report = classification_report_imbalanced(y_test, y_pred, output_dict=True)
-    for key, value in report.items():
-        if isinstance(value, dict):
-            # Skip logging of metrics for specific classes for now
-            # Full metrics are logged as a json file below
-            continue
-        else:
-            # Log all average metrics from the classification report
-            key = f"{key}_{model_name}_{suffix}" if suffix else f"{key}_{model_name}"
-            mlflow.log_metric(key, value)
-
-    # Log the full metrics dictionary to mlflow (as a json artifact)
-    file_name = (
-        f"{model_name}_metrics_{suffix}.json"
-        if suffix
-        else f"{model_name}_metrics.json"
-    )
-    mlflow.log_dict(report, file_name)
-
-    return report
 
 
 def log_and_persist_metrics(
-    y_test: pd.DataFrame,
-    y_pred: np.ndarray,
-    rarity_scores: pd.Series,
-    X_test: pd.DataFrame,
+    cv_results: dict[str, npt.NDArray],
     model_name: str,
 ) -> pd.DataFrame:
-    # Combine y_pred with the index of X_test to map the predictions back to the original index
-    y_pred_with_index = pd.Series(y_pred, index=X_test.index)
+    # Log full cross validation results to mlflow (as a json artifact)
+    file_name = f"{model_name}_cv_results.json"
+    mlflow.log_dict(cv_results, file_name)
 
-    log_confusion_matrix(y_test, y_pred, model_name=model_name)
+    metrics_dict = {}
+    # Log metrics for all folds
+    for key, value in cv_results.items():
+        # Log mean and std for all scoring metrics and fit and score time
+        if (
+            key.startswith("test_")
+            or key.startswith("fit_")
+            or key.startswith("score_")
+        ):
+            key = key.replace("test_", "")
+            std_key = f"std_{key}_{model_name}"
+            mean_key = f"mean_{key}_{model_name}"
+            metrics_dict[mean_key] = np.mean(value, dtype=np.float64)
+            metrics_dict[std_key] = np.std(value, dtype=np.float64)
+            mlflow.log_metric(mean_key, np.mean(value, dtype=np.float64))
+            mlflow.log_metric(std_key, np.std(value, dtype=np.float64))
 
-    classification_report = create_and_log_classification_report(
-        y_pred, y_test, model_name=model_name
-    )
-
-    top_10_rarest_samples = rarity_scores.nlargest(10).index.to_numpy()
-    classification_report_for_top_10_rarest = create_and_log_classification_report(
-        y_pred_with_index[top_10_rarest_samples],
-        y_test.loc[top_10_rarest_samples],
-        suffix="top_10_rarest",
-        model_name=model_name,
-    )
-
-    # Create a pandas dataframe from the full metrics dictionaries to return it for further processing
-    metrics_df = pd.DataFrame(classification_report).transpose()
-    metrics_df.index.name = "label"
-    metrics_df_top_10_rarest = pd.DataFrame(
-        classification_report_for_top_10_rarest
-    ).transpose()
-    metrics_df_top_10_rarest.index.name = "label"
-    metrics_df_top_10_rarest.index = metrics_df_top_10_rarest.index.map(
-        lambda x: f"{x}_top_10_rarest"
-    )
-    metrics_df = pd.concat([metrics_df, metrics_df_top_10_rarest])
+    # Return all mean and std metrics as a dataframe for further processing
+    metrics_df = pd.DataFrame.from_dict(metrics_dict, orient="index")
+    metrics_df.columns = ["value"]
 
     return metrics_df

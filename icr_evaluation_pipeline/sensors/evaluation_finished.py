@@ -14,11 +14,9 @@ def evaluation_finished_sensor(
     Triggers the combine_results job whenever a backfill run of the evaluation pipeline is successfully completed
     (e.g. when the partitioned_model_evaluation job is finished for all selected datasets).
     """
-
     # Get the last backfill run of the evaluation pipeline
     backfills = context.instance.get_backfills(limit=1)
     last_backfill = backfills[0] if backfills else None
-
     # Check if the last backfill was successful and is not still running
     if last_backfill and last_backfill.status == BulkActionStatus.COMPLETED_SUCCESS:
         # Set the run key to the last backfill id --> This will trigger the combine_results job ONCE
