@@ -11,6 +11,7 @@ from dagster import (
 from mlflow.data.pandas_dataset import PandasDataset
 from sklearn.model_selection import train_test_split
 from ucimlrepo import fetch_ucirepo
+from icrlearn.rarity import calculate_cb_loop
 
 from icr_evaluation_pipeline.partitions import dataset_partitions
 from icr_evaluation_pipeline.resources.configs import TrainAndTestDatasetConfig
@@ -64,6 +65,7 @@ def train_and_test_sets(
     # Log train/test split parameters to MLflow
     mlflow.log_param("train_size", len(X_train))
     mlflow.log_param("test_size", len(X_test))
+    mlflow.log_param("test_indices", X_test.index.tolist())
 
     return (
         Output((X_train, y_train)),
@@ -73,24 +75,30 @@ def train_and_test_sets(
 
 @asset(
     description="Test dataset with rarity scores",
-    deps=["test_data"],
+    deps=["test_data", "raw_dataset"],
     partitions_def=dataset_partitions,
     required_resource_keys={"mlflow"},
 )
 def test_data_with_rarity_scores(
     test_data: DataFrameTuple,
+    raw_dataset: DataFrameTuple,
 ) -> Output[Triple(pd.DataFrame, pd.DataFrame, pd.Series)]:
     (X_test, y_test) = test_data
+    (X_full, y_full) = raw_dataset
 
-    # TODO: Use proper rarity metric(s) here
-    # For now, we'll use random scores as a placeholder
-    rarity_scores = np.random.rand(len(X_test))
-    rarity_scores = pd.Series(rarity_scores, index=X_test.index)
+    # Calculate rarity scores for the whole dataset instead of just the test set
+    # Then get those rarity scores that correspond to the test set
+    # This will use more data for the calculation and should be more robust
+    # TODO: Check this with others
+    # TODO: Use rarity metric(s) depending on measure used in the ICR RF later on
+    rarity_scores = calculate_cb_loop(X_full, y_full)
+    rarity_scores = pd.Series(rarity_scores, index=X_full.index)
+    rarity_scores_test = rarity_scores.loc[X_test.index]
 
     # TODO: Think about useful metadata to include here
     # e.g. the rarest x samples, all samples over a certain rarity threshold, top x percent of rarest samples, etc.
-    top_10_rarest = rarity_scores.nlargest(10).index.tolist()
+    top_10_rarest = rarity_scores_test.nlargest(10).index.tolist()
 
     mlflow.log_param("top_10_rarest_samples", top_10_rarest)
 
-    return Output((X_test, y_test, rarity_scores))
+    return Output((X_test, y_test, rarity_scores_test))
