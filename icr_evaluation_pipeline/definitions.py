@@ -1,6 +1,6 @@
 from dagster import Definitions, load_assets_from_package_module
 
-from icr_evaluation_pipeline.assets import datasets, models, results
+from icr_evaluation_pipeline.assets import datasets, models, results, rarity
 from icr_evaluation_pipeline.jobs import partitioned_evaluation_job, combine_results_job
 from icr_evaluation_pipeline.resources.custom_mlflow import CustomMlflow
 from icr_evaluation_pipeline.sensors.evaluation_finished import (
@@ -8,11 +8,13 @@ from icr_evaluation_pipeline.sensors.evaluation_finished import (
 )
 
 dataset_assets = load_assets_from_package_module(datasets, group_name="Datasets")
+rarity_assets = load_assets_from_package_module(rarity, group_name="Rarity_Scores")
 model_assets = load_assets_from_package_module(models, group_name="Model_Results")
 result_assets = load_assets_from_package_module(results, group_name="Test_Results")
 
 all_assets = [
     *dataset_assets,
+    *rarity_assets,
     *model_assets,
     *result_assets,
 ]

@@ -3,13 +3,13 @@ from dagster_mlflow import end_mlflow_on_run_finished
 
 from icr_evaluation_pipeline.assets.datasets.datasets import (
     full_dataset,
-    rarity_scores,
     k_folds,
 )
 from icr_evaluation_pipeline.assets.models.models import (
     random_forest_results,
     icr_random_forest_results,
 )
+from icr_evaluation_pipeline.assets.rarity.rarity_scores import rarity_scores
 from icr_evaluation_pipeline.assets.results.combined_results import combined_results
 from icr_evaluation_pipeline.partitions import dataset_partitions
 
