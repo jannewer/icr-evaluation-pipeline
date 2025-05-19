@@ -13,6 +13,7 @@ from sklearn.model_selection import cross_validate
 from icr_evaluation_pipeline.evaluation import (
     f1_most_rare_score,
     log_and_persist_metrics,
+    geo_most_rare_score,
 )
 from icr_evaluation_pipeline.partitions import dataset_partitions
 from icr_evaluation_pipeline.types import DataFrameTuple
@@ -36,6 +37,12 @@ def cross_validate_model(
         ),
         "f1_most_rare_macro": make_scorer(
             f1_most_rare_score,
+            greater_is_better=True,
+            average="macro",
+            rarity_scores=rarity_scores,
+        ),
+        "geo_most_rare_macro": make_scorer(
+            geo_most_rare_score,
             greater_is_better=True,
             average="macro",
             rarity_scores=rarity_scores,

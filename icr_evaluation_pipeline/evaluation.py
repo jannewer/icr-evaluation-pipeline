@@ -2,7 +2,23 @@ import mlflow
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
+from imblearn.metrics import geometric_mean_score
 from sklearn.metrics import f1_score
+
+
+def get_y_most_rare(
+    y_true: pd.Series, y_pred: npt.ArrayLike, rarity_scores: pd.Series
+) -> tuple[npt.NDArray, npt.NDArray]:
+    # Get the rarity scores for all samples in the test set of the current fold
+    rarity_scores_for_y_true = rarity_scores.loc[y_true.index]
+    # Get the indices of the 10 rarest samples of the test set
+    ten_rarest_indices = rarity_scores_for_y_true.nlargest(10).index
+    # Create a series from y_pred with the same index as y_true to be able to locate the rarest samples by index
+    y_pred_series = pd.Series(y_pred, index=y_true.index)
+    # Create numpy arrays that contain the actual and predicted values for the rarest samples
+    y_true_most_rare = y_true.loc[ten_rarest_indices].to_numpy()
+    y_pred_most_rare = y_pred_series.loc[ten_rarest_indices].to_numpy()
+    return y_pred_most_rare, y_true_most_rare
 
 
 def f1_most_rare_score(
@@ -12,20 +28,28 @@ def f1_most_rare_score(
     average: str = "macro",
     sample_weight: np.ndarray = None,
 ) -> float:
-    # Get the rarity scores for all samples in the test set of the current fold
-    rarity_scores_for_y_true = rarity_scores.loc[y_true.index]
-    # Get the indices of the 10 rarest samples of the test set
-    ten_rarest_indices = rarity_scores_for_y_true.nlargest(10).index
-
-    # Create a series from y_pred with the same index as y_true to be able to locate the rarest samples by index
-    y_pred_series = pd.Series(y_pred, index=y_true.index)
-
-    # Create numpy arrays that contain the actual and predicted values for the rarest samples
-    y_true_most_rare = y_true.loc[ten_rarest_indices].to_numpy()
-    y_pred_most_rare = y_pred_series.loc[ten_rarest_indices].to_numpy()
+    y_pred_most_rare, y_true_most_rare = get_y_most_rare(y_true, y_pred, rarity_scores)
 
     # Calculate f1 score for the rarest samples
     return f1_score(
+        y_true_most_rare,
+        y_pred_most_rare,
+        average=average,
+        sample_weight=sample_weight,
+    )
+
+
+def geo_most_rare_score(
+    y_true: pd.Series,
+    y_pred: npt.ArrayLike,
+    rarity_scores: pd.Series,
+    average: str = "macro",
+    sample_weight: np.ndarray = None,
+) -> float:
+    y_pred_most_rare, y_true_most_rare = get_y_most_rare(y_true, y_pred, rarity_scores)
+
+    # Calculate f1 score for the rarest samples
+    return geometric_mean_score(
         y_true_most_rare,
         y_pred_most_rare,
         average=average,
