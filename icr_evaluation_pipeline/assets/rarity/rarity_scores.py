@@ -26,6 +26,6 @@ def rarity_scores(
     # TODO: Think about useful metadata to include here
     # e.g. the rarest x samples, all samples over a certain rarity threshold, top x percent of rarest samples, etc.
     top_10_rarest = rarity_scores.nlargest(10).index.tolist()
-    mlflow.log_param("top_10_rarest_samples", top_10_rarest)
+    mlflow.log_param("top_10_rarest_samples_full_dataset", top_10_rarest)
 
     return Output(rarity_scores)

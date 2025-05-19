@@ -6,14 +6,13 @@ from dagster import (
     Output,
     OpExecutionContext,
 )
-from icrlearn.rarity import calculate_cb_loop
 from mlflow.data.pandas_dataset import PandasDataset
 from sklearn.model_selection import StratifiedKFold, KFold
 from ucimlrepo import fetch_ucirepo
 
 from icr_evaluation_pipeline.partitions import dataset_partitions
 from icr_evaluation_pipeline.resources.configs import KFoldConfig
-from icr_evaluation_pipeline.types import DataFrameTuple, Triple, IteratorType
+from icr_evaluation_pipeline.types import DataFrameTuple
 
 
 @asset(
@@ -52,9 +51,7 @@ def k_folds(
     rarity_scores: pd.Series,
     full_dataset: DataFrameTuple,
     config: KFoldConfig,
-) -> Output[
-    list[tuple[np.ndarray, np.ndarray]]
-]:  # TODO: Change to a more specific type if possible
+) -> Output[list[tuple[np.ndarray, np.ndarray]]]:
     (X, y) = full_dataset
 
     if not config.stratify:
@@ -76,7 +73,8 @@ def k_folds(
         split_criterion = pd.cut(
             rarity_scores, bins=config.n_bins, include_lowest=True, labels=False
         )
-        mlflow.log_param("split_criterion_stratified_fold", split_criterion.tolist())
+        mlflow.log_param("split_criterion_stratified_k_fold", split_criterion.tolist())
+        mlflow.log_param("n_bins_stratified_k_fold", config.n_bins)
 
         # Create a list of tuples with the train/test indices
         # The feature to split on is sufficient to determine the split
@@ -89,9 +87,8 @@ def k_folds(
         ]
 
     # Log the k-folds and params to MLflow
-    mlflow.log_param("n_splits", config.n_splits)
-    mlflow.log_param("stratify", config.stratify)
-    mlflow.log_param("n_bins", config.n_bins)
+    mlflow.log_param("n_splits_k_fold", config.n_splits)
+    mlflow.log_param("stratified_k_fold", config.stratify)
     for i, (train_indices, test_indices) in enumerate(folds):
         mlflow.log_param(f"fold_{i}_indices_train", train_indices.tolist())
         mlflow.log_param(f"fold_{i}_indices_test", test_indices.tolist())

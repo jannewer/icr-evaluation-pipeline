@@ -5,7 +5,7 @@ from icr_evaluation_pipeline.assets.datasets.datasets import (
     full_dataset,
     k_folds,
 )
-from icr_evaluation_pipeline.assets.models.models import (
+from icr_evaluation_pipeline.assets.results.individual_results import (
     random_forest_results,
     icr_random_forest_results,
 )
