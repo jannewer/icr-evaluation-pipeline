@@ -55,19 +55,13 @@ def k_folds(
     (X, y) = full_dataset
 
     if not config.stratify:
-        # TODO: Think about whether shuffling is useful here (if it is not sure if some datasets are sorted)
-        # Are indices lost when shuffling? We need them for evaluation (top 10 rarest samples, etc.)
-        # TODO: Think about the value of k/n_splits
-        kf = KFold(n_splits=config.n_splits)
+        kf = KFold(n_splits=config.n_splits, shuffle=config.shuffle)
         # Create a list of tuples with the train/test indices
         folds = [
             (train_indices, test_indices) for train_indices, test_indices in kf.split(X)
         ]
     else:
-        # TODO: Think about whether shuffling is useful here (if it is not sure if some datasets are sorted)
-        # Are indices lost when shuffling? We need them for evaluation (top 10 rarest samples, etc.)
-        # TODO: Think about the value of k/n_splits
-        skf = StratifiedKFold(n_splits=config.n_splits)
+        skf = StratifiedKFold(n_splits=config.n_splits, shuffle=config.shuffle)
 
         # Bin the rarity scores to make them categorical (StratifiedKFold requires categorical data for stratification)
         split_criterion = pd.cut(
