@@ -1,5 +1,6 @@
 import mlflow
 import numpy as np
+import openml
 import pandas as pd
 from dagster import (
     asset,
@@ -23,18 +24,30 @@ from icr_evaluation_pipeline.types import DataFrameTuple
 def full_dataset(
     context: OpExecutionContext,
 ) -> Output[DataFrameTuple]:
-    dataset_name = context.partition_key
+    dataset_id = int(context.partition_key)
+    openml_task = openml.tasks.get_task(dataset_id)
+
+    dataset_name = openml_task.get_dataset().name
     context.log.info(f"Evaluating model on {dataset_name}")
 
-    # Fetch dataset
-    dataset = fetch_ucirepo(name=dataset_name)
-    X = dataset.data.features
-    y = dataset.data.targets
+    # Fetch X and y from OpenML
+    X, y = openml_task.get_X_and_y()
+
+    # TODO: Think about whether the DataFrames are needed or if we can just use the numpy arrays
+    X = pd.DataFrame(X)
+    y = pd.DataFrame(y)
     dataset_df = pd.concat([X, y], axis=1)
+
+    # TODO: REMOVE?
+    # Fetch dataset
+    # dataset = fetch_ucirepo(name=dataset_name)
+    # X = dataset.data.features
+    # y = dataset.data.targets
+    # dataset_df = pd.concat([X, y], axis=1)
 
     # Log dataset as input to MLflow
     mlflow_dataset: PandasDataset = mlflow.data.from_pandas(
-        dataset_df, name=dataset.metadata.name
+        dataset_df, name=dataset_name
     )
     mlflow.log_input(mlflow_dataset, context="training")
 

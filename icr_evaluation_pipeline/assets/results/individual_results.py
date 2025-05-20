@@ -98,6 +98,7 @@ def random_forest_results(
     k_folds: list[tuple[np.ndarray, np.ndarray]],
     rarity_scores: pd.Series,
 ) -> Output[tuple[pd.DataFrame, str]]:
+    # TODO: This is the id not the name when using OpenML --> Think about how to handle this
     dataset_key = context.partition_key.replace("'", "")
     (X, y) = full_dataset
     base_model = RandomForestClassifier()
