@@ -88,19 +88,19 @@ def cross_validate_model(
 
 @asset(
     description="Standard RF Model Results",
-    deps=["full_dataset", "k_folds", "rarity_scores"],
+    deps=["preprocessed_dataset", "k_folds", "rarity_scores"],
     partitions_def=dataset_partitions,
     required_resource_keys={"mlflow"},
 )
 def random_forest_results(
     context: OpExecutionContext,
-    full_dataset: DataFrameTuple,
+    preprocessed_dataset: DataFrameTuple,
     k_folds: list[tuple[np.ndarray, np.ndarray]],
     rarity_scores: pd.Series,
 ) -> Output[tuple[pd.DataFrame, str]]:
     # TODO: This is the id not the name when using OpenML --> Think about how to handle this
     dataset_key = context.partition_key.replace("'", "")
-    (X, y) = full_dataset
+    (X, y) = preprocessed_dataset
     base_model = RandomForestClassifier()
     model_short_name = "rf"
 
@@ -113,18 +113,18 @@ def random_forest_results(
 
 @asset(
     description="ICR RF Results",
-    deps=["full_dataset", "k_folds"],
+    deps=["preprocessed_dataset", "k_folds"],
     partitions_def=dataset_partitions,
     required_resource_keys={"mlflow"},
 )
 def icr_random_forest_results(
     context: OpExecutionContext,
-    full_dataset: DataFrameTuple,
+    preprocessed_dataset: DataFrameTuple,
     k_folds: list[tuple[np.ndarray, np.ndarray]],
     rarity_scores: pd.Series,
 ) -> Output[tuple[pd.DataFrame, str]]:
     dataset_key = context.partition_key.replace("'", "")
-    (X, y) = full_dataset
+    (X, y) = preprocessed_dataset
     icr_model = ICRRandomForestClassifier()
     model_short_name = "icr-rf"
 

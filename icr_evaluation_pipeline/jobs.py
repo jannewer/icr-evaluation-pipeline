@@ -4,6 +4,7 @@ from dagster_mlflow import end_mlflow_on_run_finished
 from icr_evaluation_pipeline.assets.datasets.datasets import (
     full_dataset,
     k_folds,
+    preprocessed_dataset,
 )
 from icr_evaluation_pipeline.assets.results.individual_results import (
     random_forest_results,
@@ -18,6 +19,7 @@ partitioned_evaluation_job = define_asset_job(
     partitions_def=dataset_partitions,
     selection=AssetSelection.assets(
         full_dataset,
+        preprocessed_dataset,
         rarity_scores,
         k_folds,
         random_forest_results,

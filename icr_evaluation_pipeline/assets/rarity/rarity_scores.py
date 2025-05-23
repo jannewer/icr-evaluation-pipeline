@@ -9,14 +9,19 @@ from icr_evaluation_pipeline.types import DataFrameTuple
 
 @asset(
     description="Rarity scores for the full dataset",
-    deps=["full_dataset"],
+    deps=["preprocessed_dataset"],
     partitions_def=dataset_partitions,
     required_resource_keys={"mlflow"},
 )
 def rarity_scores(
-    full_dataset: DataFrameTuple,
+    preprocessed_dataset: DataFrameTuple,
 ) -> Output[pd.Series]:
-    (X_full, y_full) = full_dataset
+    (X_full, y_full) = preprocessed_dataset
+
+    # Log columns with missing values to MLflow
+    missing_values = X_full.isnull().sum()
+    missing_columns = missing_values[missing_values > 0].index.tolist()
+    mlflow.log_param("missing_columns", missing_columns)
 
     # Calculate rarity scores for the whole dataset
     # TODO: Use rarity metric(s) depending on measure used in the ICR RF later on
