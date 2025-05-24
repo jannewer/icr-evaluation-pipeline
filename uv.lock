@@ -1256,7 +1256,7 @@ requires-dist = [
     { name = "dagster-mlflow", specifier = ">=0.26.5" },
     { name = "dagster-webserver", specifier = ">=1.10.5" },
     { name = "dagster-webserver", marker = "extra == 'dev'" },
-    { name = "icrlearn", git = "https://github.com/jannewer/intra-class-rare-learn?branch=feat%2Ftiming" },
+    { name = "icrlearn", git = "https://github.com/jannewer/intra-class-rare-learn.git" },
     { name = "imbalanced-learn", specifier = ">=0.12.4" },
     { name = "mlflow", specifier = ">=2.21.0" },
     { name = "openml", specifier = ">=0.15.1" },
@@ -1275,7 +1275,7 @@ dev = [
 [[package]]
 name = "icrlearn"
 version = "0.0.1"
-source = { git = "https://github.com/jannewer/intra-class-rare-learn?branch=feat%2Ftiming#6e7b03153bad40b0d97b4da2a7cc71916a4167e9" }
+source = { git = "https://github.com/jannewer/intra-class-rare-learn.git#403d877cc6dfb37c3496eb26e37101563102d683" }
 dependencies = [
     { name = "black" },
     { name = "matplotlib", version = "3.9.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },

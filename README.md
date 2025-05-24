@@ -26,10 +26,22 @@ Start the MLflow UI web server:
 uv run task mlflow
 ```
 
+All dependencies will automatically be installed when you run the above commands.
 Open http://localhost:3000 with your browser to see the Dagster UI and http://localhost:5000 to see the MLflow UI.
 
 If you want to store Dagster runs across restarts, you can create a `.env` file based on the `.env.example` file and set
 the `DAGSTER_HOME` variable to a directory where you want to store the runs.
+
+### Limiting the number of parallel runs
+
+You can limit the number of parallel runs by adding a `dagster.yaml` file to the directory set as `DAGSTER_HOME` in the
+`.env` file. The file should contain the following:
+
+```yaml
+concurrency:
+  runs:
+    max_concurrent_runs: 5
+```
 
 ## Development
 

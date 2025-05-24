@@ -599,7 +599,7 @@ httptools==0.6.4 \
 humanfriendly==10.0 \
     --hash=sha256:1697e1a8a8f550fd43c2865cd84542fc175a61dcb779b6fee18cf6b6ccba1477 \
     --hash=sha256:6b0b831ce8f15f7300721aa49829fc4e83921a9a301cc7f606be6686a2288ddc
-icrlearn @ git+https://github.com/jannewer/intra-class-rare-learn@6e7b03153bad40b0d97b4da2a7cc71916a4167e9
+icrlearn @ git+https://github.com/jannewer/intra-class-rare-learn.git@403d877cc6dfb37c3496eb26e37101563102d683
 identify==2.6.9 \
     --hash=sha256:c98b4322da415a8e5a70ff6e51fbc2d2932c015532d77e9f8537b4ba7813b150 \
     --hash=sha256:d40dfe3142a1421d8518e3d3985ef5ac42890683e32306ad614a29490abeb6bf
