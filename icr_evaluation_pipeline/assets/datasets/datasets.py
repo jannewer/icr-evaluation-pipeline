@@ -189,6 +189,7 @@ def k_folds(
         ]
 
     # Log the k-folds and params to MLflow
+    # TODO: Remove the logging of splits at least for large datasets?
     mlflow.log_param("n_splits_k_fold", config.n_splits)
     mlflow.log_param("stratified_k_fold", config.stratify)
     for i, (train_indices, test_indices) in enumerate(folds):

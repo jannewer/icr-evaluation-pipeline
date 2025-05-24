@@ -1,3 +1,5 @@
+import logging
+
 import mlflow
 import numpy as np
 import pandas as pd
@@ -49,6 +51,10 @@ def cross_validate_model(
         ),
     }
 
+    logging.info(
+        f"Starting cross-validation of {model_short_name} model on dataset {dataset_key}"
+    )
+
     cv_results = cross_validate(
         estimator=model,
         X=X,
@@ -57,6 +63,10 @@ def cross_validate_model(
         scoring=scoring,
         return_indices=True,
         return_estimator=True,
+    )
+
+    logging.info(
+        f"Finished cross-validation of {model_short_name} model on dataset {dataset_key}"
     )
 
     # Infer the model signature

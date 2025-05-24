@@ -1,7 +1,9 @@
+import logging
+
 import mlflow
 import pandas as pd
 from dagster import asset, Output
-from icrlearn.rarity import calculate_cb_loop
+import icrlearn.rarity as icr_rarity
 
 from icr_evaluation_pipeline.partitions import dataset_partitions
 from icr_evaluation_pipeline.types import DataFrameTuple
@@ -25,8 +27,10 @@ def rarity_scores(
 
     # Calculate rarity scores for the whole dataset
     # TODO: Use rarity metric(s) depending on measure used in the ICR RF later on
-    rarity_scores = calculate_cb_loop(X_full, y_full)
+    logging.info("Calculating rarity scores for the full dataset")
+    rarity_scores = icr_rarity.calculate_cb_loop(X_full, y_full, timing=True)
     rarity_scores = pd.Series(rarity_scores, index=X_full.index)
+    logging.info("Finished calculating rarity scores for the full dataset")
 
     # TODO: Think about useful metadata to include here
     # e.g. the rarest x samples, all samples over a certain rarity threshold, top x percent of rarest samples, etc.
