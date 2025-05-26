@@ -65,9 +65,19 @@ def preprocessed_dataset(
     more_categorical_than_numerical_features = (
         number_of_categorical_features > number_of_numerical_features
     )
-    ratio_of_missing_values_X = X.isnull().sum() / len(X)
+    ratio_of_missing_values_X = X.isna().values.mean()
+    mlflow.log_param("ratio_of_missing_values", ratio_of_missing_values_X)
 
-    # For features with missing values do the following:
+    # Drop columns with over 50% missing values
+    columns_to_drop = X.columns[X.isna().mean() > 0.5]
+    if not columns_to_drop.empty:
+        mlflow.log_param(
+            "columns_dropped_due_to_missing_ratio_over_50_percent",
+            columns_to_drop.tolist(),
+        )
+        X_and_y.drop(columns=columns_to_drop, inplace=True)
+
+    # For the whole dataset do the following:
     # - If the ratio of missing values is < 0.1 apply CCA
     # - If the ratio of missing values is >= 0.1 and < 0.4:
     # - If the number of instances in the dataset is < 1000:
@@ -77,56 +87,38 @@ def preprocessed_dataset(
     # - If the number of instances in the dataset is >= 10000 apply CCA
     # TODO: If the ratio of missing values is >= 0.5 apply Mixed Methods?
 
-    features_with_missing_values_less_than_10_percent = ratio_of_missing_values_X[
-        (ratio_of_missing_values_X > 0) & (ratio_of_missing_values_X < 0.1)
-    ]
-    features_with_missing_values_between_10_and_40_percent = ratio_of_missing_values_X[
-        (ratio_of_missing_values_X >= 0.1) & (ratio_of_missing_values_X < 0.4)
-    ]
-    features_with_missing_values_greater_than_40_percent = ratio_of_missing_values_X[
-        ratio_of_missing_values_X >= 0.4
-    ]
-
-    # Log the feature names and their missing value ratios to MLflow
-    mlflow.log_param(
-        "features_with_missing_values_less_than_10_percent",
-        features_with_missing_values_less_than_10_percent.index.tolist(),
-    )
-    mlflow.log_param(
-        "features_with_missing_values_between_10_and_40_percent",
-        features_with_missing_values_between_10_and_40_percent.index.tolist(),
-    )
-    mlflow.log_param(
-        "features_with_missing_values_greater_than_40_percent",
-        features_with_missing_values_greater_than_40_percent.index.tolist(),
-    )
-
-    for feature in features_with_missing_values_less_than_10_percent.index:
-        print(
-            f"Feature {feature} has {ratio_of_missing_values_X[feature]:.2%} missing values"
-        )
+    if ratio_of_missing_values_X < 0.1:
+        mlflow.log_param("X_and_y_shape before", X_and_y.shape)
 
         # Apply CCA (discard rows with missing values)
-        X_and_y.dropna(subset=[feature], inplace=True)
+        X_and_y.dropna(inplace=True)
 
-        print(f"Feature {feature} has been imputed with CCA")
+        # Log X_and_y shape to MLflow
+        mlflow.log_param("X_and_y_shape after", X_and_y.shape)
 
-    for feature in features_with_missing_values_between_10_and_40_percent.index:
+        print(f"Dataset {full_dataset.name} has been imputed with CCA")
+    elif 0.1 <= ratio_of_missing_values_X < 0.4:
         if number_of_instances < 1000:
             if more_categorical_than_numerical_features:
-                # TODO: Apply Miss-Forest
-                pass
+                # TODO: Apply Miss-Forest instead
+                X_and_y.dropna(inplace=True)
+                print(f"Dataset {full_dataset.name} has been imputed with Miss-Forest")
             else:
-                # TODO: Apply MI
-                pass
+                # TODO: Apply MI instead
+                X_and_y.dropna(inplace=True)
+                print(f"Dataset {full_dataset.name} has been imputed with MI")
         elif 1000 <= number_of_instances < 10000:
-            # TODO: Apply Miss-Forest
-            pass
+            # TODO: Apply Miss-Forest instead
+            X_and_y.dropna(inplace=True)
+            print(f"Dataset {full_dataset.name} has been imputed with Miss-Forest")
         else:
             # Apply CCA (discard rows with missing values)
-            X_and_y.dropna(subset=[feature], inplace=True)
-
-    # TODO: for every feature in missing_values_greater_than_40_percent apply Mixed Methods
+            X_and_y.dropna(inplace=True)
+            print(f"Dataset {full_dataset.name} has been imputed with CCA")
+    else:
+        # TODO: Apply Mixed Methods instead
+        X_and_y.dropna(inplace=True)
+        print(f"Dataset {full_dataset.name} has been imputed with Mixed-Methods")
 
     y = X_and_y[full_dataset.default_target_attribute]
     # TODO: Adjust the other steps instead --> Make them use a Series instead of a DataFrame for y
