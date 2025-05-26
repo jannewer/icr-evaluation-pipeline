@@ -189,11 +189,17 @@ def k_folds(
         ]
 
     # Log the k-folds and params to MLflow
-    # TODO: Remove the logging of splits at least for large datasets?
     mlflow.log_param("n_splits_k_fold", config.n_splits)
     mlflow.log_param("stratified_k_fold", config.stratify)
-    for i, (train_indices, test_indices) in enumerate(folds):
-        mlflow.log_param(f"fold_{i}_indices_train", train_indices.tolist())
-        mlflow.log_param(f"fold_{i}_indices_test", test_indices.tolist())
+
+    # Log full folds to MLflow as a JSON artifact
+    folds_as_dict = {
+        f"fold_{i}": {
+            "train_indices": train_indices.tolist(),
+            "test_indices": test_indices.tolist(),
+        }
+        for i, (train_indices, test_indices) in enumerate(folds)
+    }
+    mlflow.log_dict(folds_as_dict, artifact_file="k_folds.json")
 
     return Output(folds)
