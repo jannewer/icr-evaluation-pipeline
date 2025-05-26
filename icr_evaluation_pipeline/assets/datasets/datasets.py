@@ -60,13 +60,11 @@ def preprocessed_dataset(
     X_and_y = pd.concat([X, y], axis=1)
 
     number_of_instances = len(X)
-
-    # TODO: Use the categorical indicator to determine the number of categorical features
+    number_of_categorical_features = np.array(categorical_indicator).sum()
+    number_of_numerical_features = X.shape[1] - number_of_categorical_features
     more_categorical_than_numerical_features = (
-        X.select_dtypes(include=["object", "category"]).shape[1]
-        > X.select_dtypes(include=["int", "float"]).shape[1]
+        number_of_categorical_features > number_of_numerical_features
     )
-
     ratio_of_missing_values_X = X.isnull().sum() / len(X)
 
     # For features with missing values do the following:
