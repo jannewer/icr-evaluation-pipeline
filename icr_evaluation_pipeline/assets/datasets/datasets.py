@@ -197,6 +197,13 @@ def preprocessed_dataset(
         X_and_y, name=f"{full_dataset.name}_after_imputation"
     )
     mlflow.log_input(mlflow_dataset_after_imputation, context="imputation")
+    # Get the values of all indices in missing_indices from X_and_y
+    values = [X_and_y.at[row, col] for row, col in missing_indices]
+    # Log the values of all indices in missing_indices to MLflow
+    mlflow.log_param(
+        "values_of_missing_indices_after_imputation",
+        values,
+    )
 
     y = X_and_y[full_dataset.default_target_attribute]
     # TODO: Adjust the other steps instead --> Make them use a Series instead of a DataFrame for y
@@ -211,8 +218,13 @@ def preprocessed_dataset(
     # Encode categorical features
     # TODO: Use label encoding instead! Or even remove completely, if LoOP calculation works without it
     #  (e.g. by specifying a custom similarity matrix based on Gower's distance)
+    # TODO: One-hot encoding could also cause OOM errors for large datasets!
     # One-hot encoding (int is necessary for LoOP calculation)
-    X = pd.get_dummies(X, drop_first=True, dtype=np.int8)
+    # X = pd.get_dummies(X, drop_first=True, dtype=np.int8)
+    # Label encoding (int is necessary for LoOP calculation)
+    X[categorical_features] = X[categorical_features].apply(
+        lambda col: col.astype("category").cat.codes
+    )
 
     return Output((X, y))
 
