@@ -17,7 +17,7 @@ from icr_evaluation_pipeline.types import DataFrameTuple
     pool="rarity_pool",
 )
 def rarity_scores(
-    preprocessed_dataset: DataFrameTuple,
+    preprocessed_dataset: tuple[pd.DataFrame, pd.Series],
 ) -> Output[pd.Series]:
     (X_full, y_full) = preprocessed_dataset
 

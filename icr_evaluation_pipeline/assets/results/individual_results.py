@@ -23,7 +23,7 @@ from icr_evaluation_pipeline.types import DataFrameTuple
 
 def cross_validate_model(
     X: pd.DataFrame,
-    y: pd.DataFrame,
+    y: pd.Series,
     k_folds: list[tuple[np.ndarray, np.ndarray]],
     model: sklearn.base.BaseEstimator,
     model_short_name: str,
@@ -58,7 +58,7 @@ def cross_validate_model(
     cv_results = cross_validate(
         estimator=model,
         X=X,
-        y=y.squeeze(),
+        y=y,
         cv=k_folds,
         scoring=scoring,
         return_indices=True,
@@ -105,7 +105,7 @@ def cross_validate_model(
 )
 def random_forest_results(
     context: OpExecutionContext,
-    preprocessed_dataset: DataFrameTuple,
+    preprocessed_dataset: tuple[pd.DataFrame, pd.Series],
     k_folds: list[tuple[np.ndarray, np.ndarray]],
     rarity_scores: pd.Series,
 ) -> Output[tuple[pd.DataFrame, str]]:
@@ -131,7 +131,7 @@ def random_forest_results(
 )
 def icr_random_forest_results(
     context: OpExecutionContext,
-    preprocessed_dataset: DataFrameTuple,
+    preprocessed_dataset: tuple[pd.DataFrame, pd.Series],
     k_folds: list[tuple[np.ndarray, np.ndarray]],
     rarity_scores: pd.Series,
 ) -> Output[tuple[pd.DataFrame, str]]:
