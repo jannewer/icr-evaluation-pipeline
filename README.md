@@ -34,6 +34,8 @@ the `DAGSTER_HOME` variable to a directory where you want to store the runs.
 
 ### Limiting the number of parallel runs
 
+Depending on the number and size of the datasets, the pipeline can take a long time to run and consume a lot of
+resources. To avoid overloading your system, you can limit concurrency of the Dagster pipeline.
 You can limit the number of parallel runs by adding a `dagster.yaml` file to the directory set as `DAGSTER_HOME` in the
 `.env` file. The file should contain the following:
 
@@ -41,6 +43,19 @@ You can limit the number of parallel runs by adding a `dagster.yaml` file to the
 concurrency:
   runs:
     max_concurrent_runs: 5
+```
+
+More fine-grained options are documented in
+the [Dagster documentation](https://docs.dagster.io/guides/operate/managing-concurrency).
+
+### Enabling run monitoring
+
+Dagster can detect hanging runs and restart crashed run workers. To enable this feature, you can add the following to
+the `dagster.yaml` file in the directory set as `DAGSTER_HOME`:
+
+```yaml
+run_monitoring:
+  enabled: true
 ```
 
 ## Development

@@ -18,7 +18,7 @@ from sklearn.experimental import enable_iterative_imputer  # noqa
 from sklearn.impute import IterativeImputer
 
 from icr_evaluation_pipeline.partitions import dataset_partitions
-from icr_evaluation_pipeline.resources.configs import KFoldConfig
+from icr_evaluation_pipeline.resources.configs import KFoldConfig, PreprocessingConfig
 from icr_evaluation_pipeline.types import DataFrameTuple
 
 
@@ -61,7 +61,7 @@ def full_dataset(
     pool="preprocessing_pool",
 )
 def preprocessed_dataset(
-    full_dataset: openml.OpenMLDataset,
+    full_dataset: openml.OpenMLDataset, config: PreprocessingConfig
 ) -> Output[DataFrameTuple]:
     X, y, categorical_indicator, _ = full_dataset.get_data(
         target=full_dataset.default_target_attribute, dataset_format="dataframe"
@@ -69,11 +69,11 @@ def preprocessed_dataset(
     X_and_y = pd.concat([X, y], axis=1)
     categorical_features = X.columns[categorical_indicator].tolist()
 
-    # Drop columns with over 50% missing values
-    columns_to_drop = X.columns[X.isna().mean() > 0.5]
+    # Drop columns with over Z% missing values
+    columns_to_drop = X.columns[X.isna().mean() > config.missing_value_threshold]
     if not columns_to_drop.empty:
         mlflow.log_param(
-            "columns_dropped_due_to_missing_ratio_over_50_percent",
+            "columns_dropped_due_to_missing_ratio_over_threshold",
             columns_to_drop.tolist(),
         )
         X_and_y.drop(columns=columns_to_drop, inplace=True)

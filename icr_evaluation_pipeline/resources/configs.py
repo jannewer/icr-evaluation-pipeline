@@ -6,3 +6,9 @@ class KFoldConfig(Config):
     shuffle: bool = True
     stratify: bool = True
     n_bins: int = 10
+
+
+class PreprocessingConfig(Config):
+    missing_value_threshold: float = (
+        0.5  # Drop columns with more than this fraction of missing values
+    )
