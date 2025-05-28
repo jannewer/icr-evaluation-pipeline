@@ -14,6 +14,7 @@ from icr_evaluation_pipeline.types import DataFrameTuple
     deps=["preprocessed_dataset"],
     partitions_def=dataset_partitions,
     required_resource_keys={"mlflow"},
+    pool="rarity_pool",
 )
 def rarity_scores(
     preprocessed_dataset: DataFrameTuple,

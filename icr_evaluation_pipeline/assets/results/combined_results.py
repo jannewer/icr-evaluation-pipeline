@@ -8,6 +8,7 @@ from dagster import asset, Output, OpExecutionContext
     description="Combined Model Results",
     deps=["random_forest_results", "icr_random_forest_results"],
     required_resource_keys={"mlflow"},
+    pool="evaluation_pool",
 )
 def combined_results(
     context: OpExecutionContext,

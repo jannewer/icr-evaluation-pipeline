@@ -26,6 +26,7 @@ from icr_evaluation_pipeline.types import DataFrameTuple
     description="Full dataset",
     partitions_def=dataset_partitions,
     required_resource_keys={"mlflow"},
+    pool="preprocessing_pool",
 )
 def full_dataset(
     context: OpExecutionContext,
@@ -57,6 +58,7 @@ def full_dataset(
     deps=["full_dataset"],
     partitions_def=dataset_partitions,
     required_resource_keys={"mlflow"},
+    pool="preprocessing_pool",
 )
 def preprocessed_dataset(
     full_dataset: openml.OpenMLDataset,
@@ -234,6 +236,7 @@ def preprocessed_dataset(
     deps=["preprocessed_dataset", "rarity_scores"],
     partitions_def=dataset_partitions,
     required_resource_keys={"mlflow"},
+    pool="preprocessing_pool",
 )
 def k_folds(
     rarity_scores: pd.Series,

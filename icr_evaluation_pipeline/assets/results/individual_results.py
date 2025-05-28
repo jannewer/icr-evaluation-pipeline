@@ -101,6 +101,7 @@ def cross_validate_model(
     deps=["preprocessed_dataset", "k_folds", "rarity_scores"],
     partitions_def=dataset_partitions,
     required_resource_keys={"mlflow"},
+    pool="evaluation_pool",
 )
 def random_forest_results(
     context: OpExecutionContext,
@@ -111,7 +112,7 @@ def random_forest_results(
     # TODO: This is the id not the name when using OpenML --> Think about how to handle this
     dataset_key = context.partition_key.replace("'", "")
     (X, y) = preprocessed_dataset
-    base_model = RandomForestClassifier()
+    base_model = RandomForestClassifier(n_jobs=-1)
     model_short_name = "rf"
 
     metrics = cross_validate_model(
@@ -126,6 +127,7 @@ def random_forest_results(
     deps=["preprocessed_dataset", "k_folds"],
     partitions_def=dataset_partitions,
     required_resource_keys={"mlflow"},
+    pool="evaluation_pool",
 )
 def icr_random_forest_results(
     context: OpExecutionContext,
@@ -135,7 +137,7 @@ def icr_random_forest_results(
 ) -> Output[tuple[pd.DataFrame, str]]:
     dataset_key = context.partition_key.replace("'", "")
     (X, y) = preprocessed_dataset
-    icr_model = ICRRandomForestClassifier()
+    icr_model = ICRRandomForestClassifier(n_jobs=-1)
     model_short_name = "icr-rf"
 
     metrics = cross_validate_model(
