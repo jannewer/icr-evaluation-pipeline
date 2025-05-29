@@ -80,8 +80,9 @@ uv run task format
 
 ### Adding datasets
 
-Datasets from the UCI Machine Learning Repository can be added by adding their name to the partitions definition in
-`partitions.py`.
+[Tasks from the OpenML Repository](https://www.openml.org/search?type=task&sort=runs) can be added by adding their name
+to the list of task ids for the partitions definition in `partitions.py`. Adding datasets from other sources will
+require modifying the `full_dataset` asset in `datasets.py`.
 
 ### Custom MLflow tracking
 
