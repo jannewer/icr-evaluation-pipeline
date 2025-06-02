@@ -11,13 +11,17 @@ def get_y_most_rare(
 ) -> tuple[npt.NDArray, npt.NDArray]:
     # Get the rarity scores for all samples in the test set of the current fold
     rarity_scores_for_y_true = rarity_scores.loc[y_true.index]
-    # Get the indices of the 10 rarest samples of the test set
-    ten_rarest_indices = rarity_scores_for_y_true.nlargest(10).index
+
+    # Get the indices of the top 10 percent rarest samples of the test set
+    top_ten_percent_most_rare_indices = rarity_scores_for_y_true.nlargest(
+        int(len(rarity_scores_for_y_true) * 0.1)
+    ).index
+
     # Create a series from y_pred with the same index as y_true to be able to locate the rarest samples by index
     y_pred_series = pd.Series(y_pred, index=y_true.index)
     # Create numpy arrays that contain the actual and predicted values for the rarest samples
-    y_true_most_rare = y_true.loc[ten_rarest_indices].to_numpy()
-    y_pred_most_rare = y_pred_series.loc[ten_rarest_indices].to_numpy()
+    y_true_most_rare = y_true.loc[top_ten_percent_most_rare_indices].to_numpy()
+    y_pred_most_rare = y_pred_series.loc[top_ten_percent_most_rare_indices].to_numpy()
     return y_pred_most_rare, y_true_most_rare
 
 
