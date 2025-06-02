@@ -1135,7 +1135,6 @@ dependencies = [
     { name = "imbalanced-learn", version = "0.12.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "imbalanced-learn", version = "0.13.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "lightgbm" },
-    { name = "missforest" },
     { name = "mlflow" },
     { name = "openml" },
     { name = "pandas" },
@@ -1165,7 +1164,6 @@ requires-dist = [
     { name = "icrlearn", git = "https://github.com/jannewer/intra-class-rare-learn.git" },
     { name = "imbalanced-learn", specifier = ">=0.12.4" },
     { name = "lightgbm", specifier = ">=4.6.0" },
-    { name = "missforest", specifier = ">=4.2.3" },
     { name = "mlflow", specifier = ">=2.21.0" },
     { name = "openml", specifier = ">=0.15.1" },
     { name = "pandas", specifier = ">=2.2.3" },
@@ -1724,15 +1722,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/9e/68/86a1cef80396e6a35a6fc4fafee5d28578c1a137bddd3ca2aa86f9b26a22/minio-7.2.15.tar.gz", hash = "sha256:5247df5d4dca7bfa4c9b20093acd5ad43e82d8710ceb059d79c6eea970f49f79", size = 138040 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/fb/6f/3690028e846fe432bfa5ba724a0dc37ec9c914965b7733e19d8ca2c4c48d/minio-7.2.15-py3-none-any.whl", hash = "sha256:c06ef7a43e5d67107067f77b6c07ebdd68733e5aa7eed03076472410ca19d876", size = 95075 },
-]
-
-[[package]]
-name = "missforest"
-version = "4.2.3"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/7a/d7/13459714e46be77d612b57ef290d57d803eead0d1e053973c26ccd8781ef/missforest-4.2.3.tar.gz", hash = "sha256:5b754a6ff98ff11c578dbddf7ce4fa1fa73b7f7d65847cf50de6bec067fb7a5a", size = 11843 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/83/ef/c2dc53bf6ce3d50a46dfaf3aa2333a3a998e0e490628ba04cf69b787a0db/MissForest-4.2.3-py3-none-any.whl", hash = "sha256:4faba6235d9e4ce072d990c16634bba30b7a6da8f481a7121f0e6ae8a995e3e4", size = 14050 },
 ]
 
 [[package]]

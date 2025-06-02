@@ -67,9 +67,18 @@ def preprocessed_dataset(
     )
     categorical_features = X.columns[categorical_indicator].tolist()
 
-    X, y, categorical_features = handle_missing_values(
-        X, y, categorical_features, config.missing_value_threshold, full_dataset
-    )
+    try:
+        X, y, categorical_features = handle_missing_values(
+            X,
+            y,
+            categorical_features,
+            config.col_missing_value_threshold,
+            config.row_missing_value_threshold,
+            full_dataset,
+        )
+    except ValueError as ve:
+        mlflow.log_param("error_handling_missing_values", str(ve))
+        raise ve
 
     X = encode_categorical_features(X, categorical_features)
 

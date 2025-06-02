@@ -21,11 +21,6 @@ def rarity_scores(
 ) -> Output[pd.Series]:
     (X_full, y_full) = preprocessed_dataset
 
-    # Log columns with missing values to MLflow
-    missing_values = X_full.isnull().sum()
-    missing_columns = missing_values[missing_values > 0].index.tolist()
-    mlflow.log_param("missing_columns", missing_columns)
-
     # Calculate rarity scores for the whole dataset
     # TODO: Use rarity metric(s) depending on measure used in the ICR RF later on
     logging.info("Calculating rarity scores for the full dataset")

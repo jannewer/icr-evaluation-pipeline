@@ -9,6 +9,9 @@ class KFoldConfig(Config):
 
 
 class PreprocessingConfig(Config):
-    missing_value_threshold: float = (
+    col_missing_value_threshold: float = (
         0.5  # Drop columns with more than this fraction of missing values
+    )
+    row_missing_value_threshold: float = (
+        0.05  # Drop rows with more than this fraction of missing values
     )
