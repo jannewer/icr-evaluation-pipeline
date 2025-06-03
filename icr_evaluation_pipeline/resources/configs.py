@@ -9,9 +9,11 @@ class KFoldConfig(Config):
 
 
 class PreprocessingConfig(Config):
-    col_missing_value_threshold: float = (
-        0.5  # Drop columns with more than this fraction of missing values
-    )
-    row_missing_value_threshold: float = (
-        0.05  # Drop rows with more than this fraction of missing values
-    )
+    # Drop columns with more than this fraction of missing values
+    col_missing_value_threshold: float = 0.5
+    # Drop rows with missing values if max. this fraction of rows has missing values
+    row_missing_value_threshold: float = 0.05
+    # At least this fraction of samples should be covered by the top $num_categories_threshold categories
+    coverage_threshold: float = 0.9
+    # Max. this number of categories should be needed to cover $coverage_threshold percent of the samples
+    num_categories_threshold: int = 20

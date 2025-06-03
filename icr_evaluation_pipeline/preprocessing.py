@@ -8,14 +8,40 @@ from icr_evaluation_pipeline.types import Triple
 
 
 def encode_categorical_features(
-    X: pd.DataFrame, categorical_features: list[str]
+    X: pd.DataFrame,
+    categorical_features: list[str],
+    num_categories_threshold: int = 20,
+    coverage_threshold: float = 0.9,
 ) -> pd.DataFrame:
-    # Encode categorical features
-    # TODO: Remove completely, if LoOP calculation works without it
-    #  (e.g. by specifying a custom similarity matrix based on Gower's distance)
-    X[categorical_features] = X[categorical_features].apply(
-        lambda col: col.astype("category").cat.codes
-    )
+    columns_to_drop = []
+    # For each categorical feature, check how many unique values of it are needed to cover 90% of the samples
+    for col in categorical_features:
+        # Count the number of samples that each category covers
+        value_counts = X[col].value_counts()
+        # For each category, count how many samples it and the previous categories cover
+        cumulative_sum = value_counts.cumsum()
+        # Calculate the percentage of samples covered by each category and the previous ones
+        cumulative_percent = cumulative_sum / len(X)
+        # Count how many categories are needed to cover 90% of the samples
+        num_categories_needed = (cumulative_percent < coverage_threshold).sum() + 1
+
+        if num_categories_needed > num_categories_threshold:
+            columns_to_drop.append(col)
+        else:
+            # Replace all categories not in the top N with "other"
+            categories_to_keep = value_counts.index[:num_categories_needed].tolist()
+            X[col] = X[col].where(X[col].isin(categories_to_keep), other="other")
+
+    # One-hot encode the categorical features
+    X = pd.get_dummies(X, columns=[categorical_features])
+
+    if columns_to_drop:
+        mlflow.log_param(
+            "columns_dropped_due_to_too_many_unique_values",
+            columns_to_drop,
+        )
+        X = X.drop(columns=columns_to_drop)
+
     return X
 
 

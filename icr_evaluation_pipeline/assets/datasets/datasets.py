@@ -80,7 +80,12 @@ def preprocessed_dataset(
         mlflow.log_param("error_handling_missing_values", str(ve))
         raise ve
 
-    X = encode_categorical_features(X, categorical_features)
+    X = encode_categorical_features(
+        X,
+        categorical_features,
+        config.num_categories_threshold,
+        config.coverage_threshold,
+    )
 
     return Output((X, y))
 
