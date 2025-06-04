@@ -16,6 +16,8 @@ def encode_categorical_features(
     columns_to_drop = []
     # For each categorical feature, check how many unique values of it are needed to cover 90% of the samples
     for col in categorical_features:
+        X[col] = X[col].astype("category")
+
         # Count the number of samples that each category covers
         value_counts = X[col].value_counts()
         # For each category, count how many samples it and the previous categories cover
@@ -30,7 +32,12 @@ def encode_categorical_features(
         else:
             # Replace all categories not in the top N with "other"
             categories_to_keep = value_counts.index[:num_categories_needed].tolist()
-            X[col] = X[col].where(X[col].isin(categories_to_keep), other="other")
+
+            mask_not_in_categories_to_keep = ~X[col].isin(categories_to_keep)
+            if mask_not_in_categories_to_keep.any():
+                X[col] = X[col].cat.add_categories([f"{col}_other"])
+
+            X[col] = X[col].where(X[col].isin(categories_to_keep), other=f"{col}_other")
 
     # One-hot encode the categorical features
     X = pd.get_dummies(X, columns=[categorical_features])
