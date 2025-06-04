@@ -40,7 +40,7 @@ def encode_categorical_features(
             X[col] = X[col].where(X[col].isin(categories_to_keep), other=f"{col}_other")
 
     # One-hot encode the categorical features
-    X = pd.get_dummies(X, columns=[categorical_features])
+    X = pd.get_dummies(X, columns=categorical_features)
 
     if columns_to_drop:
         mlflow.log_param(
