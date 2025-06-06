@@ -23,6 +23,11 @@ def rarity_scores(
 
     # Calculate rarity scores for the whole dataset
     # TODO: Use rarity metric(s) depending on measure used in the ICR RF later on
+    mlflow.log_param(
+        "rarity_metric",
+        "CB-LoOP",
+    )
+
     logging.info("Calculating rarity scores for the full dataset")
     rarity_scores = icr_rarity.calculate_cb_loop(X_full, y_full, timing=True)
     rarity_scores = pd.Series(rarity_scores, index=X_full.index)

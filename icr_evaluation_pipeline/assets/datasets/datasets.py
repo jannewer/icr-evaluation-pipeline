@@ -67,6 +67,12 @@ def preprocessed_dataset(
     )
     categorical_features = X.columns[categorical_indicator].tolist()
 
+    # Log config values to MLflow
+    mlflow.log_param("col_missing_value_threshold", config.col_missing_value_threshold)
+    mlflow.log_param("row_missing_value_threshold", config.row_missing_value_threshold)
+    mlflow.log_param("num_categories_threshold", config.num_categories_threshold)
+    mlflow.log_param("coverage_threshold", config.coverage_threshold)
+
     try:
         X, y, categorical_features = handle_missing_values(
             X,
