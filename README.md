@@ -60,13 +60,22 @@ run_monitoring:
 
 ### Setting the OpenML retry policy
 
-If you are using the OpenML repository, you can set the retry policy for OpenML tasks to `robot` by running:
-```bash
-uv run openml configure retry_policy
+If you are using the OpenML repository, you can set the retry policy for OpenML tasks to `robot` as described in
+the [OpenML Python User Guide](https://openml.github.io/openml-python/develop/usage.html) by placing a plain text config
+file in `~/.config/openml` with the following content:
+
+```
+apikey =
+server = https://www.openml.org/api/v1/xml
+cachedir = /path/to/cachedir
+avoid_duplicate_runs = True
+connection_n_retries = 50
+retry_policy = robot
+show_progress = False
 ```
 
-Then choose the `robot` option when prompted. This will set the retry policy to `robot`, which is suitable for
-automated tasks and will retry failed tasks more often, quickly increasing the time between retries.
+This will set the retry policy to `robot`, which is suitable for automated tasks and will retry failed tasks more often,
+quickly increasing the time between retries.
 
 ## Development
 
