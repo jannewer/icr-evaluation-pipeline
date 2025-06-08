@@ -49,6 +49,10 @@ def full_dataset(
     )
     mlflow.log_input(mlflow_dataset, context="training")
 
+    # Log class distribution to MLflow
+    class_distribution = y.value_counts(normalize=True).to_dict()
+    mlflow.log_param("class_distribution", class_distribution)
+
     return Output(dataset)
 
 
