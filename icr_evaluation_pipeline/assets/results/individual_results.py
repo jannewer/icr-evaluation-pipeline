@@ -11,6 +11,8 @@ from mlflow.models import infer_signature
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import cross_validate
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 
 from icr_evaluation_pipeline.evaluation import (
     f1_most_rare_score,
@@ -55,8 +57,11 @@ def cross_validate_model(
         f"Starting cross-validation of {model_short_name} model on dataset {dataset_key}"
     )
 
+    scaler = StandardScaler()
+    pipeline = Pipeline([("scaler", scaler), ("estimator", model)])
+
     cv_results = cross_validate(
-        estimator=model,
+        estimator=pipeline,
         X=X,
         y=y,
         cv=k_folds,
