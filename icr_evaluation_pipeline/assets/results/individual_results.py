@@ -57,11 +57,8 @@ def cross_validate_model(
         f"Starting cross-validation of {model_short_name} model on dataset {dataset_key}"
     )
 
-    scaler = StandardScaler()
-    pipeline = Pipeline([("scaler", scaler), ("estimator", model)])
-
     cv_results = cross_validate(
-        estimator=pipeline,
+        estimator=model,
         X=X,
         y=y,
         cv=k_folds,
