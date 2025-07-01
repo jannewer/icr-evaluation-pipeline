@@ -38,6 +38,13 @@ def rarity_scores(
         rarity_scores.to_dict(), artifact_file="rarity_scores_full_dataset.json"
     )
 
+    # Log the histogram of rarity scores to MLflow
+    rarity_scores_histogram = rarity_scores.hist(bins=100, figsize=(10, 6))
+    mlflow.log_figure(
+        figure=rarity_scores_histogram.get_figure(),
+        artifact_file="rarity_scores_histogram.png",
+    )
+
     # TODO: Think about useful metadata to include here
     # e.g. the rarest x samples, all samples over a certain rarity threshold, top x percent of rarest samples, etc.
     top_ten_percent_most_rare = rarity_scores.nlargest(int(len(rarity_scores) * 0.1))
