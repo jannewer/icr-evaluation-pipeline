@@ -9,6 +9,7 @@ from icr_evaluation_pipeline.assets.datasets.datasets import (
 from icr_evaluation_pipeline.assets.results.individual_results import (
     random_forest_results,
     icr_random_forest_results,
+    icr_rf_custom_sampling_results,
 )
 from icr_evaluation_pipeline.assets.rarity.rarity_scores import rarity_scores
 from icr_evaluation_pipeline.assets.results.combined_results import combined_results
@@ -24,6 +25,7 @@ partitioned_evaluation_job = define_asset_job(
         k_folds,
         random_forest_results,
         icr_random_forest_results,
+        icr_rf_custom_sampling_results,
     ),
     hooks={end_mlflow_on_run_finished},
 )

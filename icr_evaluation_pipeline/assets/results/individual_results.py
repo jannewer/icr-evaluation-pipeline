@@ -21,6 +21,7 @@ from icr_evaluation_pipeline.evaluation import (
 )
 from icr_evaluation_pipeline.partitions import dataset_partitions
 from icr_evaluation_pipeline.types import DataFrameTuple
+from rf_sampling_experiment.rf_exp import ExpRandomForestClassifier
 
 
 def cross_validate_model(
@@ -141,6 +142,31 @@ def icr_random_forest_results(
     (X, y) = preprocessed_dataset
     icr_model = ICRRandomForestClassifier(n_jobs=-1)
     model_short_name = "icr-rf"
+
+    metrics = cross_validate_model(
+        X, y, k_folds, icr_model, model_short_name, rarity_scores, dataset_key
+    )
+
+    return Output((metrics, model_short_name))
+
+
+@asset(
+    description="ICR RF Custom Sampling Results",
+    deps=["preprocessed_dataset", "k_folds"],
+    partitions_def=dataset_partitions,
+    required_resource_keys={"mlflow"},
+    pool="evaluation_pool",
+)
+def icr_rf_custom_sampling_results(
+    context: OpExecutionContext,
+    preprocessed_dataset: tuple[pd.DataFrame, pd.Series],
+    k_folds: list[tuple[np.ndarray, np.ndarray]],
+    rarity_scores: pd.Series,
+) -> Output[tuple[pd.DataFrame, str]]:
+    dataset_key = context.partition_key.replace("'", "")
+    (X, y) = preprocessed_dataset
+    icr_model = ExpRandomForestClassifier(n_jobs=-1)
+    model_short_name = "exp-rf"
 
     metrics = cross_validate_model(
         X, y, k_folds, icr_model, model_short_name, rarity_scores, dataset_key
