@@ -6,7 +6,11 @@ from dagster import asset, Output, OpExecutionContext
 
 @asset(
     description="Combined Model Results",
-    deps=["random_forest_results", "icr_random_forest_results"],
+    deps=[
+        "random_forest_results",
+        "icr_random_forest_results",
+        "icr_rf_custom_sampling_results",
+    ],
     required_resource_keys={"mlflow"},
     pool="evaluation_pool",
 )
@@ -14,6 +18,7 @@ def combined_results(
     context: OpExecutionContext,
     icr_random_forest_results: dict[str, tuple[pd.DataFrame, str]],
     random_forest_results: dict[str, tuple[pd.DataFrame, str]],
+    icr_rf_custom_sampling_results: dict[str, tuple[pd.DataFrame, str]],
 ) -> Output[str]:
     """
     Combines the results for all partitions into a pandas dataframe for each model and writes a csv.
@@ -25,7 +30,11 @@ def combined_results(
     # Get the partitions/datasets included in the last backfill run
     last_backfill_partitions = last_backfill.partition_names
     # Combine the results for each model
-    for result in [random_forest_results, icr_random_forest_results]:
+    for result in [
+        random_forest_results,
+        icr_random_forest_results,
+        icr_rf_custom_sampling_results,
+    ]:
         metrics_list = []
         model_name = "unknown"
 
