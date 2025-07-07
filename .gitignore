@@ -178,3 +178,6 @@ mlruns/
 
 # CSV results
 csv/
+
+# Histograms
+scripts/rarity_score_histograms/
