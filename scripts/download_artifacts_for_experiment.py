@@ -3,10 +3,8 @@ import argparse
 from mlflow.tracking import MlflowClient
 import requests
 
-ARTIFACT_PATH_DEFAULT = "rarity_scores_histogram.png"
 
-
-def download_histograms(
+def download_artifacts(
     base_url: str,
     experiment_name: str,
     output_dir: str,
@@ -40,6 +38,9 @@ def download_histograms(
         url = f"{base_url}/get-artifact?path={artifact_path}&run_id={run_id}"
         output_path = os.path.join(output_dir, f"{dataset_id}_{artifact_path}")
 
+        # make sure the output dir exists
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
         try:
             response = requests.get(url, auth=auth, timeout=30)
             response.raise_for_status()
@@ -56,7 +57,7 @@ def download_histograms(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Download all rarity score histograms for an MLflow experiment."
+        description="Download the artifact at the given path for all runs of an MLflow experiment."
     )
     parser.add_argument(
         "--base-url",
@@ -70,14 +71,14 @@ def main() -> None:
     parser.add_argument(
         "--output-dir",
         "-o",
-        default="rarity_score_histograms",
+        required=True,
         help="Directory to save downloaded artifacts",
     )
     parser.add_argument(
         "--artifact-path",
         "-a",
-        default=ARTIFACT_PATH_DEFAULT,
-        help=f"Relative artifact path in Mlflow (default: {ARTIFACT_PATH_DEFAULT})",
+        required=True,
+        help=f"Relative artifact path in Mlflow, e.g. 'rarity_score_histogram.png'",
     )
     parser.add_argument(
         "--username",
@@ -91,7 +92,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    download_histograms(
+    download_artifacts(
         base_url=args.base_url,
         experiment_name=args.experiment_name,
         output_dir=args.output_dir,

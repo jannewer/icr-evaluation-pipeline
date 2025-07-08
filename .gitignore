@@ -180,4 +180,4 @@ mlruns/
 csv/
 
 # Histograms
-scripts/rarity_score_histograms/
+scripts/*/
