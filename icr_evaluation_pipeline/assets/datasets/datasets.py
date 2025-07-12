@@ -8,9 +8,6 @@ from dagster import (
     OpExecutionContext,
 )
 from mlflow.data.pandas_dataset import PandasDataset
-
-# explicitly require the experimental feature
-from sklearn.experimental import enable_iterative_imputer  # noqa
 from sklearn.model_selection import StratifiedKFold, KFold
 
 from icr_evaluation_pipeline.partitions import dataset_partitions

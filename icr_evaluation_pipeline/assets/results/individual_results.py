@@ -20,6 +20,7 @@ from icr_evaluation_pipeline.evaluation import (
     geo_most_rare_score,
 )
 from icr_evaluation_pipeline.partitions import dataset_partitions
+from icr_evaluation_pipeline.resources.configs import ModelConfig
 from icr_evaluation_pipeline.types import DataFrameTuple
 
 
@@ -136,10 +137,27 @@ def icr_random_forest_results(
     preprocessed_dataset: tuple[pd.DataFrame, pd.Series],
     k_folds: list[tuple[np.ndarray, np.ndarray]],
     rarity_scores: pd.Series,
+    config: ModelConfig,
 ) -> Output[tuple[pd.DataFrame, str]]:
     dataset_key = context.partition_key.replace("'", "")
     (X, y) = preprocessed_dataset
-    icr_model = ICRRandomForestClassifier(n_jobs=-1)
+
+    mlflow.log_param("rarity_adjustment_method", config.rarity_adjustment_method)
+    mlflow.log_param("rarity_measure_model_evaluation", config.rarity_measure)
+    mlflow.log_param("n_neighbors", config.n_neighbors)
+    mlflow.log_param("min_rarity_score", config.min_rarity_score)
+    mlflow.log_param("cb_loop_extent", config.cb_loop_extent)
+    mlflow.log_param("l2min_psi", config.l2min_psi)
+
+    icr_model = ICRRandomForestClassifier(
+        n_jobs=-1,
+        rarity_adjustment_method=config.rarity_adjustment_method,
+        rarity_measure=config.rarity_measure,
+        n_neighbors=config.n_neighbors,
+        min_rarity_score=config.min_rarity_score,
+        cb_loop_extent=config.cb_loop_extent,
+        l2min_psi=config.l2min_psi,
+    )
     model_short_name = "icr-rf"
 
     metrics = cross_validate_model(

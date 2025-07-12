@@ -56,4 +56,4 @@ format = "ruff format"
 select = ["ANN"]
 
 [tool.uv.sources]
-icrlearn = { git = "https://github.com/jannewer/intra-class-rare-learn.git" }
+icrlearn = { git = "https://github.com/jannewer/intra-class-rare-learn" }

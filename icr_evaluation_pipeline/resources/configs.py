@@ -17,3 +17,17 @@ class PreprocessingConfig(Config):
     coverage_threshold: float = 0.9
     # Max. this number of categories should be needed to cover $coverage_threshold percent of the samples
     num_categories_threshold: int = 20
+
+
+class RarityScoreConfig(Config):
+    rarity_measure: str = "cb_loop"
+    n_neighbors: int = (
+        None  # If None, the default value of the rarity measure will be used
+    )
+    min_rarity_score: float = 0.5
+    cb_loop_extent: int = 2
+    l2min_psi: int = 1
+
+
+class ModelConfig(RarityScoreConfig):
+    rarity_adjustment_method: str = "bootstrap_sampling"
