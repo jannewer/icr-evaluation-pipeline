@@ -1,5 +1,6 @@
 from pathlib import Path
 import mlflow
+import openml
 import pandas as pd
 from dagster import asset, Output, OpExecutionContext
 
@@ -38,6 +39,7 @@ def combined_results(
 
             df_dict = df["value"].to_dict()
             df_dict["dataset"] = dataset
+            df_dict["dataset_name"] = openml.datasets.get_dataset(int(dataset)).name
 
             metrics_list.append(df_dict)
         metrics_df = pd.DataFrame(metrics_list)

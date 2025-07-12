@@ -2,6 +2,7 @@ import logging
 
 import mlflow
 import numpy as np
+import openml
 import pandas as pd
 import sklearn
 from dagster import asset, OpExecutionContext, Output
@@ -11,8 +12,6 @@ from mlflow.models import infer_signature
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import cross_validate
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
 
 from icr_evaluation_pipeline.evaluation import (
     f1_most_rare_score,
@@ -21,7 +20,6 @@ from icr_evaluation_pipeline.evaluation import (
 )
 from icr_evaluation_pipeline.partitions import dataset_partitions
 from icr_evaluation_pipeline.resources.configs import ModelConfig
-from icr_evaluation_pipeline.types import DataFrameTuple
 
 
 def cross_validate_model(
@@ -33,6 +31,8 @@ def cross_validate_model(
     rarity_scores: pd.Series,
     dataset_key: str,
 ) -> pd.DataFrame:
+    dataset_name = openml.datasets.get_dataset(dataset_key).name
+
     # TODO: Think about which scoring metrics to use AND which params (especially average)!
     # imbalanced classification report includes: f1, geometric mean, iba, precision, recall, specificity
     scoring = {
@@ -55,7 +55,7 @@ def cross_validate_model(
     }
 
     logging.info(
-        f"Starting cross-validation of {model_short_name} model on dataset {dataset_key}"
+        f"Starting cross-validation of {model_short_name} model on dataset {dataset_name} (key: {dataset_key})"
     )
 
     cv_results = cross_validate(
@@ -69,7 +69,7 @@ def cross_validate_model(
     )
 
     logging.info(
-        f"Finished cross-validation of {model_short_name} model on dataset {dataset_key}"
+        f"Finished cross-validation of {model_short_name} model on dataset {dataset_name} (key: {dataset_key})"
     )
 
     # Infer the model signature
@@ -78,14 +78,14 @@ def cross_validate_model(
     signature = infer_signature(example_X, example_of_fitted_model.predict(example_X))
     # Log the model
     artifact_path = (
-        f"base_models/{dataset_key}"
+        f"base_models/{dataset_key}_{dataset_name}"
         if model_short_name == "rf"
-        else f"icr_models/{dataset_key}"
+        else f"icr_models/{dataset_key}_{dataset_name}"
     )
     model_name = (
-        f"base_model_{dataset_key}"
+        f"base_model_{dataset_key}_{dataset_name}"
         if model_short_name == "rf"
-        else f"icr_model_{dataset_key}"
+        else f"icr_model_{dataset_key}_{dataset_name}"
     )
     mlflow.sklearn.log_model(
         sk_model=example_of_fitted_model,
@@ -112,14 +112,18 @@ def random_forest_results(
     k_folds: list[tuple[np.ndarray, np.ndarray]],
     rarity_scores: pd.Series,
 ) -> Output[tuple[pd.DataFrame, str]]:
-    # TODO: This is the id not the name when using OpenML --> Think about how to handle this
-    dataset_key = context.partition_key.replace("'", "")
     (X, y) = preprocessed_dataset
     base_model = RandomForestClassifier(n_jobs=-1)
     model_short_name = "rf"
 
     metrics = cross_validate_model(
-        X, y, k_folds, base_model, model_short_name, rarity_scores, dataset_key
+        X,
+        y,
+        k_folds=k_folds,
+        model=base_model,
+        model_short_name=model_short_name,
+        rarity_scores=rarity_scores,
+        dataset_key=context.partition_key,
     )
 
     return Output((metrics, model_short_name))
@@ -139,7 +143,6 @@ def icr_random_forest_results(
     rarity_scores: pd.Series,
     config: ModelConfig,
 ) -> Output[tuple[pd.DataFrame, str]]:
-    dataset_key = context.partition_key.replace("'", "")
     (X, y) = preprocessed_dataset
 
     mlflow.log_param("rarity_adjustment_method", config.rarity_adjustment_method)
@@ -161,7 +164,13 @@ def icr_random_forest_results(
     model_short_name = "icr-rf"
 
     metrics = cross_validate_model(
-        X, y, k_folds, icr_model, model_short_name, rarity_scores, dataset_key
+        X,
+        y,
+        k_folds=k_folds,
+        model=icr_model,
+        model_short_name=model_short_name,
+        rarity_scores=rarity_scores,
+        dataset_key=context.partition_key,
     )
 
     return Output((metrics, model_short_name))
