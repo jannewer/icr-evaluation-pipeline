@@ -31,7 +31,8 @@ def cross_validate_model(
     rarity_scores: pd.Series,
     dataset_key: str,
 ) -> pd.DataFrame:
-    dataset_name = openml.datasets.get_dataset(dataset_key).name
+    dataset_task = openml.tasks.get_task(int(dataset_key))
+    dataset_name = dataset_task.get_dataset().name
 
     # TODO: Think about which scoring metrics to use AND which params (especially average)!
     # imbalanced classification report includes: f1, geometric mean, iba, precision, recall, specificity

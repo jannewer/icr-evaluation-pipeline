@@ -24,7 +24,7 @@ class RarityScoreConfig(Config):
     n_neighbors: int = (
         None  # If None, the default value of the rarity measure will be used
     )
-    min_rarity_score: float = 0.5
+    min_rarity_score: float = 0.0
     cb_loop_extent: int = 2
     l2min_psi: int = 1
 

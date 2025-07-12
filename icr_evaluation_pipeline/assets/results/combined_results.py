@@ -39,7 +39,9 @@ def combined_results(
 
             df_dict = df["value"].to_dict()
             df_dict["dataset"] = dataset
-            df_dict["dataset_name"] = openml.datasets.get_dataset(int(dataset)).name
+            dataset_task = openml.tasks.get_task(int(dataset))
+            dataset_name = dataset_task.get_dataset().name
+            df_dict["dataset_name"] = dataset_name
 
             metrics_list.append(df_dict)
         metrics_df = pd.DataFrame(metrics_list)
