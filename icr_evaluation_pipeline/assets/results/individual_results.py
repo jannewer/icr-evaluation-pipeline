@@ -73,29 +73,6 @@ def cross_validate_model(
         f"Finished cross-validation of {model_short_name} model on dataset {dataset_name} (key: {dataset_key})"
     )
 
-    # Infer the model signature
-    example_X = X.iloc[:20, :]
-    example_of_fitted_model = cv_results["estimator"][0]
-    signature = infer_signature(example_X, example_of_fitted_model.predict(example_X))
-    # Log the model
-    artifact_path = (
-        f"base_models/{dataset_key}_{dataset_name}"
-        if model_short_name == "rf"
-        else f"icr_models/{dataset_key}_{dataset_name}"
-    )
-    model_name = (
-        f"base_model_{dataset_key}_{dataset_name}"
-        if model_short_name == "rf"
-        else f"icr_model_{dataset_key}_{dataset_name}"
-    )
-    mlflow.sklearn.log_model(
-        sk_model=example_of_fitted_model,
-        artifact_path=artifact_path,
-        signature=signature,
-        input_example=example_X,
-        registered_model_name=model_name,
-    )
-
     metrics = log_and_persist_metrics(cv_results, model_short_name)
     return metrics
 
