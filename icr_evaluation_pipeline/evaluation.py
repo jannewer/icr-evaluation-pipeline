@@ -2,8 +2,8 @@ import mlflow
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
-from imblearn.metrics import geometric_mean_score
-from sklearn.metrics import f1_score
+from imblearn.metrics import geometric_mean_score, specificity_score
+from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
 
 
 def get_y_most_rare(
@@ -25,6 +25,56 @@ def get_y_most_rare(
     return y_pred_most_rare, y_true_most_rare
 
 
+def accuracy_most_rare_score(
+    y_true: pd.Series,
+    y_pred: npt.ArrayLike,
+    rarity_scores: pd.Series,
+    sample_weight: np.ndarray = None,
+) -> float:
+    y_pred_most_rare, y_true_most_rare = get_y_most_rare(y_true, y_pred, rarity_scores)
+
+    # Calculate accuracy score for the rarest samples
+    return accuracy_score(
+        y_true_most_rare, y_pred_most_rare, sample_weight=sample_weight
+    )
+
+
+def precision_most_rare_score(
+    y_true: pd.Series,
+    y_pred: npt.ArrayLike,
+    rarity_scores: pd.Series,
+    average: str = "macro",
+    sample_weight: np.ndarray = None,
+) -> float:
+    y_pred_most_rare, y_true_most_rare = get_y_most_rare(y_true, y_pred, rarity_scores)
+
+    # Calculate precision score for the rarest samples
+    return precision_score(
+        y_true_most_rare,
+        y_pred_most_rare,
+        average=average,
+        sample_weight=sample_weight,
+    )
+
+
+def recall_most_rare_score(
+    y_true: pd.Series,
+    y_pred: npt.ArrayLike,
+    rarity_scores: pd.Series,
+    average: str = "macro",
+    sample_weight: np.ndarray = None,
+) -> float:
+    y_pred_most_rare, y_true_most_rare = get_y_most_rare(y_true, y_pred, rarity_scores)
+
+    # Calculate recall score for the rarest samples
+    return recall_score(
+        y_true_most_rare,
+        y_pred_most_rare,
+        average=average,
+        sample_weight=sample_weight,
+    )
+
+
 def f1_most_rare_score(
     y_true: pd.Series,
     y_pred: npt.ArrayLike,
@@ -36,6 +86,24 @@ def f1_most_rare_score(
 
     # Calculate f1 score for the rarest samples
     return f1_score(
+        y_true_most_rare,
+        y_pred_most_rare,
+        average=average,
+        sample_weight=sample_weight,
+    )
+
+
+def specificity_most_rare_score(
+    y_true: pd.Series,
+    y_pred: npt.ArrayLike,
+    rarity_scores: pd.Series,
+    average: str = "macro",
+    sample_weight: np.ndarray = None,
+) -> float:
+    y_pred_most_rare, y_true_most_rare = get_y_most_rare(y_true, y_pred, rarity_scores)
+
+    # Calculate specificity score for the rarest samples
+    return specificity_score(
         y_true_most_rare,
         y_pred_most_rare,
         average=average,

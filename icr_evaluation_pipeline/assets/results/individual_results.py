@@ -7,7 +7,7 @@ import pandas as pd
 import sklearn
 from dagster import asset, OpExecutionContext, Output
 from icrlearn import ICRRandomForestClassifier
-from imblearn.metrics import geometric_mean_score
+from imblearn.metrics import geometric_mean_score, specificity_score
 from mlflow.models import infer_signature
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import make_scorer
@@ -17,6 +17,10 @@ from icr_evaluation_pipeline.evaluation import (
     f1_most_rare_score,
     log_and_persist_metrics,
     geo_most_rare_score,
+    accuracy_most_rare_score,
+    precision_most_rare_score,
+    recall_most_rare_score,
+    specificity_most_rare_score,
 )
 from icr_evaluation_pipeline.partitions import dataset_partitions
 from icr_evaluation_pipeline.resources.configs import ModelConfig
@@ -37,12 +41,41 @@ def cross_validate_model(
     # TODO: Think about which scoring metrics to use AND which params (especially average)!
     # imbalanced classification report includes: f1, geometric mean, iba, precision, recall, specificity
     scoring = {
+        "accuracy": "accuracy",
         "f1_macro": "f1_macro",
+        "precision_macro": "precision_macro",
+        "recall_macro": "recall_macro",
+        "specificity_macro": make_scorer(
+            specificity_score, greater_is_better=True, average="macro"
+        ),
         "geo_macro": make_scorer(
             geometric_mean_score, greater_is_better=True, average="macro"
         ),
+        "accuracy_most_rare": make_scorer(
+            accuracy_most_rare_score,
+            greater_is_better=True,
+            rarity_scores=rarity_scores,
+        ),
         "f1_most_rare_macro": make_scorer(
             f1_most_rare_score,
+            greater_is_better=True,
+            average="macro",
+            rarity_scores=rarity_scores,
+        ),
+        "precision_most_rare_macro": make_scorer(
+            precision_most_rare_score,
+            greater_is_better=True,
+            average="macro",
+            rarity_scores=rarity_scores,
+        ),
+        "recall_most_rare_macro": make_scorer(
+            recall_most_rare_score,
+            greater_is_better=True,
+            average="macro",
+            rarity_scores=rarity_scores,
+        ),
+        "specificity_most_rare_macro": make_scorer(
+            specificity_most_rare_score,
             greater_is_better=True,
             average="macro",
             rarity_scores=rarity_scores,
