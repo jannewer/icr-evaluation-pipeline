@@ -8,7 +8,7 @@ from sklearn.metrics import (
     accuracy_score,
     precision_score,
     recall_score,
-    auc_score,
+    roc_auc_score,
 )
 
 
@@ -145,7 +145,7 @@ def auc_ovo_most_rare_score(
     y_pred_most_rare, y_true_most_rare = get_y_most_rare(y_true, y_pred, rarity_scores)
 
     # Calculate auc score (ovo) for the rarest samples
-    return auc_score(
+    return roc_auc_score(
         y_true_most_rare,
         y_pred_most_rare,
         multi_class="ovo",
