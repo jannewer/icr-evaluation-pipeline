@@ -7,8 +7,7 @@ import pandas as pd
 import sklearn
 from dagster import asset, OpExecutionContext, Output
 from icrlearn import ICRRandomForestClassifier
-from imblearn.metrics import geometric_mean_score, specificity_score
-from mlflow.models import infer_signature
+from imblearn.metrics import specificity_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import cross_validate
@@ -16,7 +15,6 @@ from sklearn.model_selection import cross_validate
 from icr_evaluation_pipeline.evaluation import (
     f1_most_rare_score,
     log_and_persist_metrics,
-    geo_most_rare_score,
     accuracy_most_rare_score,
     precision_most_rare_score,
     recall_most_rare_score,
@@ -41,13 +39,16 @@ def cross_validate_model(
     scoring = {
         "accuracy": "accuracy",
         "f1_macro": "f1_macro",
+        "f1_micro": "f1_micro",
         "precision_macro": "precision_macro",
+        "precision_micro": "precision_micro",
         "recall_macro": "recall_macro",
+        "recall_micro": "recall_micro",
         "specificity_macro": make_scorer(
             specificity_score, greater_is_better=True, average="macro"
         ),
-        "geo_macro": make_scorer(
-            geometric_mean_score, greater_is_better=True, average="macro"
+        "specificity_micro": make_scorer(
+            specificity_score, greater_is_better=True, average="micro"
         ),
         "roc_auc_ovo": "roc_auc_ovo",
         "accuracy_most_rare": make_scorer(
@@ -61,10 +62,22 @@ def cross_validate_model(
             average="macro",
             rarity_scores=rarity_scores,
         ),
+        "f1_most_rare_micro": make_scorer(
+            f1_most_rare_score,
+            greater_is_better=True,
+            average="micro",
+            rarity_scores=rarity_scores,
+        ),
         "precision_most_rare_macro": make_scorer(
             precision_most_rare_score,
             greater_is_better=True,
             average="macro",
+            rarity_scores=rarity_scores,
+        ),
+        "precision_most_rare_micro": make_scorer(
+            precision_most_rare_score,
+            greater_is_better=True,
+            average="micro",
             rarity_scores=rarity_scores,
         ),
         "recall_most_rare_macro": make_scorer(
@@ -73,16 +86,22 @@ def cross_validate_model(
             average="macro",
             rarity_scores=rarity_scores,
         ),
+        "recall_most_rare_micro": make_scorer(
+            recall_most_rare_score,
+            greater_is_better=True,
+            average="micro",
+            rarity_scores=rarity_scores,
+        ),
         "specificity_most_rare_macro": make_scorer(
             specificity_most_rare_score,
             greater_is_better=True,
             average="macro",
             rarity_scores=rarity_scores,
         ),
-        "geo_most_rare_macro": make_scorer(
-            geo_most_rare_score,
+        "specificity_most_rare_micro": make_scorer(
+            specificity_most_rare_score,
             greater_is_better=True,
-            average="macro",
+            average="micro",
             rarity_scores=rarity_scores,
         ),
         "auc_ovo_most_rare_macro": make_scorer(

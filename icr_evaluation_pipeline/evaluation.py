@@ -2,7 +2,7 @@ import mlflow
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
-from imblearn.metrics import geometric_mean_score, specificity_score
+from imblearn.metrics import specificity_score
 from sklearn.metrics import (
     f1_score,
     accuracy_score,
@@ -110,24 +110,6 @@ def specificity_most_rare_score(
 
     # Calculate specificity score for the rarest samples
     return specificity_score(
-        y_true_most_rare,
-        y_pred_most_rare,
-        average=average,
-        sample_weight=sample_weight,
-    )
-
-
-def geo_most_rare_score(
-    y_true: pd.Series,
-    y_pred: npt.ArrayLike,
-    rarity_scores: pd.Series,
-    average: str = "macro",
-    sample_weight: np.ndarray = None,
-) -> float:
-    y_pred_most_rare, y_true_most_rare = get_y_most_rare(y_true, y_pred, rarity_scores)
-
-    # Calculate f1 score for the rarest samples
-    return geometric_mean_score(
         y_true_most_rare,
         y_pred_most_rare,
         average=average,
