@@ -38,8 +38,6 @@ def cross_validate_model(
     dataset_task = openml.tasks.get_task(int(dataset_key))
     dataset_name = dataset_task.get_dataset().name
 
-    # TODO: Think about which scoring metrics to use AND which params (especially average)!
-    # imbalanced classification report includes: f1, geometric mean, iba, precision, recall, specificity
     scoring = {
         "accuracy": "accuracy",
         "f1_macro": "f1_macro",
@@ -51,6 +49,7 @@ def cross_validate_model(
         "geo_macro": make_scorer(
             geometric_mean_score, greater_is_better=True, average="macro"
         ),
+        "roc_auc_ovo": "roc_auc_ovo",
         "accuracy_most_rare": make_scorer(
             accuracy_most_rare_score,
             greater_is_better=True,
@@ -82,6 +81,12 @@ def cross_validate_model(
         ),
         "geo_most_rare_macro": make_scorer(
             geo_most_rare_score,
+            greater_is_better=True,
+            average="macro",
+            rarity_scores=rarity_scores,
+        ),
+        "auc_ovo_most_rare_macro": make_scorer(
+            f1_most_rare_score,
             greater_is_better=True,
             average="macro",
             rarity_scores=rarity_scores,

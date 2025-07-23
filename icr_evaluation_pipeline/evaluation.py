@@ -3,7 +3,13 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 from imblearn.metrics import geometric_mean_score, specificity_score
-from sklearn.metrics import f1_score, accuracy_score, precision_score, recall_score
+from sklearn.metrics import (
+    f1_score,
+    accuracy_score,
+    precision_score,
+    recall_score,
+    auc_score,
+)
 
 
 def get_y_most_rare(
@@ -124,6 +130,25 @@ def geo_most_rare_score(
     return geometric_mean_score(
         y_true_most_rare,
         y_pred_most_rare,
+        average=average,
+        sample_weight=sample_weight,
+    )
+
+
+def auc_ovo_most_rare_score(
+    y_true: pd.Series,
+    y_pred: npt.ArrayLike,
+    rarity_scores: pd.Series,
+    average: str = "macro",
+    sample_weight: np.ndarray = None,
+) -> float:
+    y_pred_most_rare, y_true_most_rare = get_y_most_rare(y_true, y_pred, rarity_scores)
+
+    # Calculate auc score (ovo) for the rarest samples
+    return auc_score(
+        y_true_most_rare,
+        y_pred_most_rare,
+        multi_class="ovo",
         average=average,
         sample_weight=sample_weight,
     )
