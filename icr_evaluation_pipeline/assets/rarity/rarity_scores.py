@@ -44,27 +44,27 @@ def rarity_scores(
                 n_neighbors=config.n_neighbors,
             )
         rarity_scores = pd.Series(rarity_scores, index=X_full.index)
-    elif config.rarity_measure == "l2min":
+    elif config.rarity_measure == "l2class":
         if config.n_neighbors is None:
-            rarity_scores = icr_rarity.calculate_l2min(
+            rarity_scores = icr_rarity.calculate_l2class(
                 X_full,
                 y_full,
-                psi=config.l2min_psi,
+                psi=config.l2class_psi,
                 beta=config.min_rarity_score,
             )
         else:
-            rarity_scores = icr_rarity.calculate_l2min(
+            rarity_scores = icr_rarity.calculate_l2class(
                 X_full,
                 y_full,
                 n_neighbors=config.n_neighbors,
-                psi=config.l2min_psi,
+                psi=config.l2class_psi,
                 beta=config.min_rarity_score,
             )
         rarity_scores = pd.Series(rarity_scores, index=X_full.index)
     else:
         raise ValueError(
             f"Unsupported rarity measure: {config.rarity_measure}. "
-            "Supported measures are 'cb_loop' and 'l2min'."
+            "Supported measures are 'cb_loop' and 'l2class'."
         )
     logging.info("Finished calculating rarity scores for the full dataset")
 

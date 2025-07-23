@@ -26,7 +26,7 @@ class RarityScoreConfig(Config):
     )
     min_rarity_score: float = 0.0
     cb_loop_extent: int = 2
-    l2min_psi: int = 1
+    l2class_psi: int = 1
 
 
 class ModelConfig(RarityScoreConfig):

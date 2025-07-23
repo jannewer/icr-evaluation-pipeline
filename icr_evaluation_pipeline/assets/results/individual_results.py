@@ -166,7 +166,7 @@ def icr_random_forest_results(
     mlflow.log_param("n_neighbors", config.n_neighbors)
     mlflow.log_param("min_rarity_score", config.min_rarity_score)
     mlflow.log_param("cb_loop_extent", config.cb_loop_extent)
-    mlflow.log_param("l2min_psi", config.l2min_psi)
+    mlflow.log_param("l2class_psi", config.l2class_psi)
 
     icr_model = ICRRandomForestClassifier(
         n_jobs=-1,
@@ -175,7 +175,7 @@ def icr_random_forest_results(
         n_neighbors=config.n_neighbors,
         min_rarity_score=config.min_rarity_score,
         cb_loop_extent=config.cb_loop_extent,
-        l2min_psi=config.l2min_psi,
+        l2class_psi=config.l2class_psi,
     )
     model_short_name = "icr-rf"
 
