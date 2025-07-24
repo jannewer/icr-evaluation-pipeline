@@ -50,6 +50,7 @@ def precision_most_rare_score(
     rarity_scores: pd.Series,
     average: str = "macro",
     sample_weight: np.ndarray = None,
+    pos_label: int | float | bool | str = None,
 ) -> float:
     y_pred_most_rare, y_true_most_rare = get_y_most_rare(y_true, y_pred, rarity_scores)
 
@@ -59,6 +60,7 @@ def precision_most_rare_score(
         y_pred_most_rare,
         average=average,
         sample_weight=sample_weight,
+        pos_label=pos_label,  # ignored if average != "binary"
     )
 
 
@@ -68,6 +70,7 @@ def recall_most_rare_score(
     rarity_scores: pd.Series,
     average: str = "macro",
     sample_weight: np.ndarray = None,
+    pos_label: int | float | bool | str = None,
 ) -> float:
     y_pred_most_rare, y_true_most_rare = get_y_most_rare(y_true, y_pred, rarity_scores)
 
@@ -77,6 +80,7 @@ def recall_most_rare_score(
         y_pred_most_rare,
         average=average,
         sample_weight=sample_weight,
+        pos_label=pos_label,  # ignored if average != "binary"
     )
 
 
@@ -86,6 +90,7 @@ def f1_most_rare_score(
     rarity_scores: pd.Series,
     average: str = "macro",
     sample_weight: np.ndarray = None,
+    pos_label: int | float | bool | str = None,
 ) -> float:
     y_pred_most_rare, y_true_most_rare = get_y_most_rare(y_true, y_pred, rarity_scores)
 
@@ -95,6 +100,7 @@ def f1_most_rare_score(
         y_pred_most_rare,
         average=average,
         sample_weight=sample_weight,
+        pos_label=pos_label,  # ignored if average != "binary"
     )
 
 
@@ -104,6 +110,7 @@ def specificity_most_rare_score(
     rarity_scores: pd.Series,
     average: str = "macro",
     sample_weight: np.ndarray = None,
+    pos_label: int | float | bool | str = None,
 ) -> float:
     y_pred_most_rare, y_true_most_rare = get_y_most_rare(y_true, y_pred, rarity_scores)
 
@@ -113,6 +120,7 @@ def specificity_most_rare_score(
         y_pred_most_rare,
         average=average,
         sample_weight=sample_weight,
+        pos_label=pos_label,  # ignored if average != "binary"
     )
 
 

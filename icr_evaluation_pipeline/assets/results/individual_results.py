@@ -7,18 +7,15 @@ import pandas as pd
 import sklearn
 from dagster import asset, OpExecutionContext, Output
 from icrlearn import ICRRandomForestClassifier
-from imblearn.metrics import specificity_score
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import make_scorer
 from sklearn.model_selection import cross_validate
 
+from icr_evaluation_pipeline.assets.results.scorers import (
+    get_multiclass_scoring,
+    get_binary_scoring,
+)
 from icr_evaluation_pipeline.evaluation import (
-    f1_most_rare_score,
     log_and_persist_metrics,
-    accuracy_most_rare_score,
-    precision_most_rare_score,
-    recall_most_rare_score,
-    specificity_most_rare_score,
 )
 from icr_evaluation_pipeline.partitions import dataset_partitions
 from icr_evaluation_pipeline.resources.configs import ModelConfig
@@ -36,74 +33,12 @@ def cross_validate_model(
     dataset_task = openml.tasks.get_task(int(dataset_key))
     dataset_name = dataset_task.get_dataset().name
 
-    scoring = {
-        "accuracy": "accuracy",
-        "f1_macro": "f1_macro",
-        "f1_micro": "f1_micro",
-        "precision_macro": "precision_macro",
-        "precision_micro": "precision_micro",
-        "recall_macro": "recall_macro",
-        "recall_micro": "recall_micro",
-        "specificity_macro": make_scorer(
-            specificity_score, greater_is_better=True, average="macro"
-        ),
-        "specificity_micro": make_scorer(
-            specificity_score, greater_is_better=True, average="micro"
-        ),
-        "accuracy_most_rare": make_scorer(
-            accuracy_most_rare_score,
-            greater_is_better=True,
-            rarity_scores=rarity_scores,
-        ),
-        "f1_most_rare_macro": make_scorer(
-            f1_most_rare_score,
-            greater_is_better=True,
-            average="macro",
-            rarity_scores=rarity_scores,
-        ),
-        "f1_most_rare_micro": make_scorer(
-            f1_most_rare_score,
-            greater_is_better=True,
-            average="micro",
-            rarity_scores=rarity_scores,
-        ),
-        "precision_most_rare_macro": make_scorer(
-            precision_most_rare_score,
-            greater_is_better=True,
-            average="macro",
-            rarity_scores=rarity_scores,
-        ),
-        "precision_most_rare_micro": make_scorer(
-            precision_most_rare_score,
-            greater_is_better=True,
-            average="micro",
-            rarity_scores=rarity_scores,
-        ),
-        "recall_most_rare_macro": make_scorer(
-            recall_most_rare_score,
-            greater_is_better=True,
-            average="macro",
-            rarity_scores=rarity_scores,
-        ),
-        "recall_most_rare_micro": make_scorer(
-            recall_most_rare_score,
-            greater_is_better=True,
-            average="micro",
-            rarity_scores=rarity_scores,
-        ),
-        "specificity_most_rare_macro": make_scorer(
-            specificity_most_rare_score,
-            greater_is_better=True,
-            average="macro",
-            rarity_scores=rarity_scores,
-        ),
-        "specificity_most_rare_micro": make_scorer(
-            specificity_most_rare_score,
-            greater_is_better=True,
-            average="micro",
-            rarity_scores=rarity_scores,
-        ),
-    }
+    if len(np.unique(y)) > 2:
+        scoring = get_multiclass_scoring(rarity_scores)
+    else:
+        # For binary classification, we use the first class as the positive class
+        pos_label = np.unique(y)[0]
+        scoring = get_binary_scoring(rarity_scores, pos_label)
 
     logging.info(
         f"Starting cross-validation of {model_short_name} model on dataset {dataset_name} (key: {dataset_key})"
