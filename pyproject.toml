@@ -17,11 +17,12 @@ dependencies = [
     "dagster-mlflow>=0.26.5",
     "dagster-webserver>=1.10.5",
     "icrlearn",
-    "imbalanced-learn>=0.12.4",
+    "imbalanced-learn>=0.14.dev0",
     "lightgbm>=4.6.0",
     "mlflow>=2.21.0",
     "openml>=0.15.1",
     "pandas>=2.2.3",
+    "scikit-learn>=1.7.1",
     "ucimlrepo>=0.0.7",
 ]
 
@@ -57,3 +58,5 @@ select = ["ANN"]
 
 [tool.uv.sources]
 icrlearn = { git = "https://github.com/jannewer/intra-class-rare-learn" }
+# the latest release of imbalanced-learn is incompatible to scikit-learn 1.7.1, so we use the latest commit
+imbalanced-learn = { git = "https://github.com/scikit-learn-contrib/imbalanced-learn.git" }
