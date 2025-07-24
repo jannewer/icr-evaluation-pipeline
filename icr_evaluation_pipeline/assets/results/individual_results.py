@@ -19,8 +19,6 @@ from icr_evaluation_pipeline.evaluation import (
     precision_most_rare_score,
     recall_most_rare_score,
     specificity_most_rare_score,
-    auc_ovo_most_rare_score,
-    auc_ovr_most_rare_score,
 )
 from icr_evaluation_pipeline.partitions import dataset_partitions
 from icr_evaluation_pipeline.resources.configs import ModelConfig
@@ -52,8 +50,6 @@ def cross_validate_model(
         "specificity_micro": make_scorer(
             specificity_score, greater_is_better=True, average="micro"
         ),
-        "roc_auc_ovo": "roc_auc_ovo",
-        "roc_auc_ovr": "roc_auc_ovr",
         "accuracy_most_rare": make_scorer(
             accuracy_most_rare_score,
             greater_is_better=True,
@@ -105,18 +101,6 @@ def cross_validate_model(
             specificity_most_rare_score,
             greater_is_better=True,
             average="micro",
-            rarity_scores=rarity_scores,
-        ),
-        "auc_ovo_most_rare_macro": make_scorer(
-            auc_ovo_most_rare_score,
-            greater_is_better=True,
-            average="macro",
-            rarity_scores=rarity_scores,
-        ),
-        "auc_ovr_most_rare_macro": make_scorer(
-            auc_ovr_most_rare_score,
-            greater_is_better=True,
-            average="macro",
             rarity_scores=rarity_scores,
         ),
     }
