@@ -4,6 +4,8 @@ import openml
 import pandas as pd
 from dagster import asset, Output, OpExecutionContext
 
+from icr_evaluation_pipeline.resources.configs import ModelConfig
+
 
 @asset(
     description="Combined Model Results",
@@ -15,6 +17,7 @@ def combined_results(
     context: OpExecutionContext,
     icr_random_forest_results: dict[str, tuple[pd.DataFrame, str]],
     random_forest_results: dict[str, tuple[pd.DataFrame, str]],
+    config: ModelConfig,
 ) -> Output[str]:
     """
     Combines the results for all partitions into a pandas dataframe for each model and writes a csv.
@@ -55,4 +58,13 @@ def combined_results(
         file_name = f"{new_directory_path}/{model_name}_{last_backfill.backfill_id}_combined_results.csv"
         metrics_df.to_csv(file_name)
         mlflow.log_artifact(file_name)
+
+    # Also save the model config as a csv file
+    config_dict = {
+        k: (v if v is not None else "Default") for k, v in config.__dict__.items()
+    }
+    config_df = pd.DataFrame([config_dict])
+    config_file_name = f"{new_directory_path}/{last_backfill.backfill_id}_config.csv"
+    config_df.to_csv(config_file_name, index=False)
+    mlflow.log_artifact(config_file_name)
     return Output("Combined results written to combined_results.csv")
