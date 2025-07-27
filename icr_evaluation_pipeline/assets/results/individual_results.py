@@ -11,8 +11,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_validate
 
 from icr_evaluation_pipeline.assets.results.scorers import (
-    get_multiclass_scoring,
-    get_binary_scoring,
+    get_scoring,
 )
 from icr_evaluation_pipeline.evaluation import (
     log_and_persist_metrics,
@@ -33,12 +32,7 @@ def cross_validate_model(
     dataset_task = openml.tasks.get_task(int(dataset_key))
     dataset_name = dataset_task.get_dataset().name
 
-    if len(np.unique(y)) > 2:
-        scoring = get_multiclass_scoring(rarity_scores)
-    else:
-        # For binary classification, we use the first class as the positive class
-        pos_label = np.unique(y)[0]
-        scoring = get_binary_scoring(rarity_scores, pos_label)
+    scoring = get_scoring(rarity_scores)
 
     logging.info(
         f"Starting cross-validation of {model_short_name} model on dataset {dataset_name} (key: {dataset_key})"
